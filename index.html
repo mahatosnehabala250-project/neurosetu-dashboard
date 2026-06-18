@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeuroSetu AI — Mrinmoy's Dashboard</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #08080e;
+    --bg2: #0d0d18;
+    --card: rgba(16, 16, 28, 0.75);
+    --card-hover: rgba(26, 26, 48, 0.85);
+    --accent: #00d4aa;
+    --accent-dark: #00a88a;
+    --purple: #8b5cf6;
+    --pink: #ec4899;
+    --orange: #f59e0b;
+    --red: #ef4444;
+    --text: #f1f5f9;
+    --text2: #94a3b8;
+    --text3: #475569;
+    --border: rgba(30, 41, 59, 0.5);
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated gradient background */
+  .bg-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: -1;
+    overflow: hidden;
+  }
+  .bg-canvas .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.3;
+    animation: orbFloat 20s ease-in-out infinite;
+  }
+  .bg-canvas .orb:nth-child(1) {
+    width: 500px; height: 500px;
+    background: var(--accent);
+    top: -10%; left: -10%;
+    animation-delay: 0s;
+  }
+  .bg-canvas .orb:nth-child(2) {
+    width: 400px; height: 400px;
+    background: var(--purple);
+    bottom: -10%; right: -10%;
+    animation-delay: -5s;
+  }
+  .bg-canvas .orb:nth-child(3) {
+    width: 300px; height: 300px;
+    background: var(--pink);
+    top: 40%; left: 50%;
+    animation-delay: -10s;
+  }
+  .bg-canvas .orb:nth-child(4) {
+    width: 350px; height: 350px;
+    background: var(--orange);
+    bottom: 20%; left: -5%;
+    animation-delay: -15s;
+  }
+
+  @keyframes orbFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(80px, -60px) scale(1.1); }
+    50% { transform: translate(-40px, 80px) scale(0.9); }
+    75% { transform: translate(60px, 40px) scale(1.05); }
+  }
+
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Particle grid overlay */
+  .particle-grid {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 28px;
+    margin-bottom: 28px;
+    background: var(--card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .logo-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .logo-icon {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 212, 170, 0.2);
+  }
+
+  .logo-text h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--purple), var(--pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-text span {
+    font-size: 0.8rem;
+    color: var(--text2);
+    font-weight: 400;
+  }
+
+  .status-strip {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .status-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    padding: 6px 14px;
+    background: rgba(30, 41, 59, 0.5);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--text2);
+    font-weight: 500;
+  }
+
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .dot-green { background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,0.5); }
+  .dot-yellow { background: var(--orange); box-shadow: 0 0 8px rgba(245,158,11,0.5); }
+  .dot-red { background: var(--red); box-shadow: 0 0 8px rgba(239,68,68,0.5); }
+
+  /* ===== GREETING ===== */
+  .greeting {
+    text-align: center;
+    margin-bottom: 28px;
+    padding: 32px;
+    background: linear-gradient(135deg, rgba(0,212,170,0.05), rgba(139,92,246,0.05));
+    border: 1px solid rgba(0,212,170,0.1);
+    border-radius: 20px;
+  }
+
+  .greeting .time-greeting {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .greeting .sub-greeting {
+    color: var(--text2);
+    font-size: 1rem;
+  }
+  .greeting .sub-greeting strong {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* ===== STAT ROW ===== */
+  .stat-king {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .stat-orb {
+    background: var(--card);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-orb::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 3px;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .stat-orb:hover {
+    transform: translateY(-4px);
+    border-color: rgba(0,212,170,0.3);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  }
+
+  .stat-orb .stat-val {
+    font-size: 1.8rem;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+  .stat-orb .stat-lbl {
+    font-size: 0.72rem;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+  }
+  .stat-orb .stat-icon {
+    font-size: 1.2rem;
+    margin-bottom: 6px;
+    opacity: 0.6;
+  }
+
+  .stat-orb.green::before { background: var(--accent); }
+  .stat-orb.green .stat-val { color: var(--accent); }
+  .stat-orb.purple::before { background: var(--purple); }
+  .stat-orb.purple .stat-val { color: var(--purple); }
+  .stat-orb.orange::before { background: var(--orange); }
+  .stat-orb.orange .stat-val { color: var(--orange); }
+  .stat-orb.pink::before { background: var(--pink); }
+  .stat-orb.pink .stat-val { color: var(--pink); }
+  .stat-orb.red::before { background: var(--red); }
+  .stat-orb.red .stat-val { color: var(--red); }
+  .stat-orb.blue::before { background: #3b82f6; }
+  .stat-orb.blue .stat-val { color: #3b82f6; }
+
+  /* ===== GRID ===== */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .card {
+    background: var(--card);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 22px;
+    transition: all 0.3s ease;
+  }
+
+  .card:hover {
+    border-color: rgba(0,212,170,0.2);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .card-header h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-header .badge {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-live { background: rgba(0,212,170,0.15); color: var(--accent); border: 1px solid rgba(0,212,170,0.3); }
+  .badge-offline { background: rgba(100,100,120,0.15); color: var(--text3); border: 1px solid rgba(100,100,120,0.3); }
+
+  /* ===== GITHUB SECTION ===== */
+  .repo-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s;
+    gap: 8px;
+  }
+  .repo-row:last-child { border-bottom: none; }
+  .repo-row:hover { padding-left: 6px; }
+
+  .repo-row .repo-name {
+    font-size: 0.82rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+  }
+  .repo-row .repo-name a {
+    color: var(--text);
+    text-decoration: none;
+  }
+  .repo-row .repo-name a:hover { color: var(--accent); }
+
+  .repo-row .repo-lang {
+    font-size: 0.65rem;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .lang-ts { background: rgba(49,120,198,0.2); color: #3178c6; }
+  .lang-py { background: rgba(55,118,171,0.2); color: #3776ab; }
+  .lang-html { background: rgba(227,76,38,0.2); color: #e34c26; }
+  .lang-js { background: rgba(241,224,90,0.2); color: #f1e05a; }
+  .lang-unknown { background: rgba(100,100,120,0.15); color: var(--text3); }
+
+  .repo-row .repo-stars {
+    font-size: 0.7rem;
+    color: var(--text2);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .github-profile-mini {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    background: rgba(30,41,59,0.3);
+    border-radius: 12px;
+    margin-bottom: 14px;
+  }
+
+  .github-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    color: var(--bg);
+    font-weight: 700;
+  }
+
+  .github-info {
+    flex: 1;
+  }
+  .github-info .gh-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .github-info .gh-stats {
+    font-size: 0.7rem;
+    color: var(--text2);
+    display: flex;
+    gap: 10px;
+    margin-top: 2px;
+  }
+
+  .github-loading {
+    text-align: center;
+    padding: 30px;
+    color: var(--text2);
+  }
+
+  .github-loading .spinner {
+    display: inline-block;
+    width: 24px; height: 24px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 8px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ===== METRICS ===== */
+  .metric-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .metric {
+    background: rgba(30,41,59,0.3);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .metric .label {
+    font-size: 0.68rem;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-top: 4px;
+  }
+
+  /* ===== LIST ITEMS ===== */
+  .list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.82rem;
+    gap: 10px;
+  }
+  .list-item:last-child { border-bottom: none; }
+
+  .tag {
+    font-size: 0.65rem;
+    padding: 3px 10px;
+    border-radius: 10px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .tag-green { background: rgba(0,212,170,0.15); color: var(--accent); }
+  .tag-purple { background: rgba(139,92,246,0.15); color: var(--purple); }
+  .tag-orange { background: rgba(245,158,11,0.15); color: var(--orange); }
+  .tag-red { background: rgba(239,68,68,0.15); color: var(--red); }
+  .tag-gray { background: rgba(100,100,120,0.15); color: var(--text3); }
+
+  /* ===== HEALTH ===== */
+  .health-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .health-item {
+    background: rgba(30,41,59,0.3);
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+  }
+  .health-item .val {
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+  .health-item .lbl {
+    font-size: 0.6rem;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-top: 2px;
+  }
+
+  /* ===== PROGRESS ===== */
+  .progress-bar-outer {
+    height: 6px;
+    background: rgba(30,41,59,0.5);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 6px;
+  }
+  .progress-bar-outer .fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.8s ease;
+  }
+  .fill-green { background: linear-gradient(90deg, var(--accent-dark), var(--accent)); }
+  .fill-purple { background: linear-gradient(90deg, #6d28d9, var(--purple)); }
+  .fill-orange { background: linear-gradient(90deg, #d97706, var(--orange)); }
+  .fill-red { background: linear-gradient(90deg, #dc2626, var(--red)); }
+
+  /* ===== HABITS ===== */
+  .habit-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    font-size: 0.82rem;
+  }
+
+  .habit-check {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--text3);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.55rem;
+    transition: all 0.3s;
+  }
+  .habit-check.done {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--bg);
+  }
+  .habit-check.pending { border-color: var(--text3); }
+
+  /* ===== ACCOUNTABILITY ===== */
+  .accountability-card {
+    grid-column: 1 / -1;
+  }
+
+  .accountability-alert {
+    display: flex;
+    gap: 14px;
+    padding: 14px;
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 12px;
+    margin-bottom: 12px;
+  }
+
+  .accountability-alert .alert-icon {
+    font-size: 1.8rem;
+    flex-shrink: 0;
+  }
+
+  .accountability-alert .alert-body p {
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--text2);
+  }
+  .accountability-alert .alert-body strong {
+    color: var(--orange);
+  }
+
+  .mantra-box {
+    padding: 14px;
+    background: linear-gradient(135deg, rgba(0,212,170,0.06), rgba(139,92,246,0.06));
+    border: 1px solid rgba(0,212,170,0.15);
+    border-radius: 12px;
+    text-align: center;
+  }
+
+  .mantra-box .mantra {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .mantra-box .attribution {
+    font-size: 0.7rem;
+    color: var(--text3);
+    margin-top: 4px;
+  }
+
+  /* ===== ACTIONS ===== */
+  .actions-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .btn {
+    padding: 10px 18px;
+    border-radius: 12px;
+    border: none;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: inherit;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent-dark), var(--accent));
+    color: var(--bg);
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,212,170,0.3);
+  }
+
+  .btn-secondary {
+    background: rgba(30,41,59,0.5);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    text-align: center;
+    padding: 24px;
+    color: var(--text3);
+    font-size: 0.72rem;
+    border-top: 1px solid var(--border);
+    margin-top: 28px;
+  }
+
+  .footer .update-time {
+    margin-top: 4px;
+    font-size: 0.65rem;
+    color: var(--text3);
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 720px) {
+    .container { padding: 12px; }
+    .header { padding: 16px; }
+    .greeting .time-greeting { font-size: 1.5rem; }
+    .grid { grid-template-columns: 1fr; }
+    .stat-king { grid-template-columns: repeat(2, 1fr); }
+    .metric-grid { grid-template-columns: 1fr 1fr; }
+    .health-stats { grid-template-columns: repeat(3, 1fr); }
+    .logo-text h1 { font-size: 1.2rem; }
+    .status-chip { font-size: 0.65rem; padding: 4px 10px; }
+  }
+
+  @media (max-width: 420px) {
+    .stat-king { grid-template-columns: 1fr; }
+    .metric-grid { grid-template-columns: 1fr; }
+    .repos-show { max-height: 250px; }
+  }
+
+  /* Repo scrollable area */
+  .repos-show {
+    max-height: 300px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .repos-show::-webkit-scrollbar { width: 4px; }
+  .repos-show::-webkit-scrollbar-track { background: transparent; }
+  .repos-show::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* Pulse animation for live indicator */
+  .pulse-dot {
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* Skeleton loading */
+  .skeleton {
+    background: linear-gradient(90deg, rgba(30,41,59,0.3) 25%, rgba(30,41,59,0.5) 50%, rgba(30,41,59,0.3) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+  }
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="orb"></div>
+  <div class="orb"></div>
+  <div class="orb"></div>
+  <div class="orb"></div>
+</div>
+<div class="particle-grid"></div>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-section">
+      <div class="logo-icon">🧠</div>
+      <div class="logo-text">
+        <h1>NeuroSetu AI</h1>
+        <span><i class="fa-regular fa-compass"></i> Mrinmoy's Command Center</span>
+      </div>
+    </div>
+    <div class="status-strip">
+      <div class="status-chip"><span class="status-dot dot-green pulse-dot"></span> Hermes Agent</div>
+      <div class="status-chip"><span class="status-dot dot-green pulse-dot"></span> WhatsApp Bridge</div>
+      <div class="status-chip"><span class="status-dot dot-yellow"></span> Revenue: ₹0</div>
+      <div class="status-chip"><i class="fa-regular fa-clock"></i> <span id="live-time">--:--</span></div>
+    </div>
+  </div>
+
+  <!-- GREETING -->
+  <div class="greeting">
+    <div class="time-greeting" id="greeting-text">Good Morning, Mrinmoy 🌅</div>
+    <div class="sub-greeting">Purulia, West Bengal · <span id="date-display"></span> · <strong>#BuildInPublic</strong></div>
+  </div>
+
+  <!-- STAT KING ROW -->
+  <div class="stat-king">
+    <div class="stat-orb green">
+      <div class="stat-icon"><i class="fa-solid fa-code-branch"></i></div>
+      <div class="stat-val" id="gh-repos">--</div>
+      <div class="stat-lbl">GitHub Repos</div>
+    </div>
+    <div class="stat-orb blue">
+      <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
+      <div class="stat-val" id="gh-lang-count">--</div>
+      <div class="stat-lbl">Languages Used</div>
+    </div>
+    <div class="stat-orb red">
+      <div class="stat-icon"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+      <div class="stat-val" id="stat-revenue">₹0</div>
+      <div class="stat-lbl">Revenue This Month</div>
+    </div>
+    <div class="stat-orb orange">
+      <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+      <div class="stat-val" id="stat-clients">0</div>
+      <div class="stat-lbl">Paying Clients</div>
+    </div>
+    <div class="stat-orb purple">
+      <div class="stat-icon"><i class="fa-solid fa-weight"></i></div>
+      <div class="stat-val" style="font-size:1.5rem">73 <span style="font-size:0.8rem;font-weight:400">→ 65</span></div>
+      <div class="stat-lbl">Weight Goal (kg)</div>
+    </div>
+    <div class="stat-orb pink">
+      <div class="stat-icon"><i class="fa-solid fa-calendar-check"></i></div>
+      <div class="stat-val">0</div>
+      <div class="stat-lbl">Sales Calls Today</div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="grid">
+
+    <!-- GITHUB REPOS -->
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fa-brands fa-github"></i> GitHub Repositories</h2>
+        <span class="badge badge-live" id="gh-badge">● LIVE</span>
+      </div>
+      <div id="github-section">
+        <div class="github-loading">
+          <div class="spinner"></div>
+          <div>Fetching your repos...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUSINESS PULSE -->
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fa-solid fa-chart-line"></i> Business Pulse</h2>
+        <span class="badge badge-live"><i class="fa-regular fa-bell"></i> Today</span>
+      </div>
+      <div class="metric-grid">
+        <div class="metric">
+          <div class="value" style="color:var(--red)">₹0</div>
+          <div class="label">Revenue This Month</div>
+        </div>
+        <div class="metric">
+          <div class="value" style="color:var(--orange)">0</div>
+          <div class="label">Paying Clients</div>
+        </div>
+        <div class="metric">
+          <div class="value" style="color:var(--text)">0</div>
+          <div class="label">Sales Calls Today</div>
+        </div>
+        <div class="metric">
+          <div class="value" style="color:var(--purple)">0</div>
+          <div class="label">Warm Leads</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;padding:10px;background:rgba(30,41,59,0.3);border-radius:10px;text-align:center;font-size:0.8rem">
+        <span style="color:var(--accent);font-weight:600">₹8,000</span> — <span style="color:var(--text2)">Pricing Floor — NEVER Free Work</span>
+      </div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fa-solid fa-cubes"></i> Products Ready</h2>
+        <span class="badge badge-live">5 Products</span>
+      </div>
+      <div class="list-item">
+        <span><i class="fa-solid fa-landmark" style="color:var(--text2);width:18px"></i> JanSunwai</span>
+        <span class="tag tag-orange">Inactive</span>
+      </div>
+      <div class="list-item">
+        <span><i class="fa-solid fa-scissors" style="color:var(--text2);width:18px"></i> SalonPro Manager</span>
+        <span class="tag tag-purple">3 Branches</span>
+      </div>
+      <div class="list-item">
+        <span><i class="fa-solid fa-robot" style="color:var(--text2);width:18px"></i> Priya AI Voice Agent</span>
+        <span class="tag tag-green">Ready</span>
+      </div>
+      <div class="list-item">
+        <span><i class="fa-solid fa-globe" style="color:var(--text2);width:18px"></i> Website Services</span>
+        <span class="tag tag-green">Ready</span>
+      </div>
+      <div class="list-item">
+        <span><i class="fa-solid fa-building-columns" style="color:var(--text2);width:18px"></i> Collectorate AI</span>
+        <span class="tag tag-orange">Concept</span>
+      </div>
+    </div>
+
+    <!-- PRICING -->
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fa-solid fa-tags"></i> Pricing</h2>
+        <span class="badge badge-live">Active</span>
+      </div>
+      <div class="list-item">
+        <span>Websites</span>
+        <span style="color:var(--accent);font-weight:700">₹8k–12k</span>
+      </div>
+      <div class="list-item">
+        <span>Restaurant Package</span>
+        <span style="color:var(--accent);font-weight:700">₹12k + ₹2k/mo</span>
+      </div>
+      <div class="list-item">
+        <span>Makeup / Training</span>
+        <span style="color:var(--accent);font-weight:700">₹18k + ₹3k/mo</span>
+      </div>
+      <div class="list-item">
+        <span>Priya AI Clinic</span>
+        <span style="color:var(--accent);font-weight:700">₹15k + ₹5k/mo</span>
+      </div>
+      <div style="margin-top:10px;padding:10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;text-align:center;font-size:0.75rem;color:var(--red);font-weight:600">
+        🚫 NEVER do free work again!
+      </div>
+    </div>
+
+    <!-- HEALTH TRACKER -->
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fa-solid fa-heart-pulse" style="color:var(--red)"></i> Health Tracker</h2>
+        <span class="badge badge-live">Active</span>
+      </div>
+      <div class="health-stats">
+        <div class="health-item">
+          <div class="val" style="color:var(--orange)">73</div>
+          <div class="lbl">Weight (kg)</div>
+        </div>
+        <div class="health-item">
+          <div class="val" style="color:var(--accent)">65</div>
+          <div class="lbl">Target</div>
+        </div>
+        <div class="health-item">
+          <div class="val" style="color:var(--text)">26.2</div>
+          <div class="lbl">BMI</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text2);margin-top:8px">
+        <span>Weight Loss Progress</span>
+        <span>73 → 65 <span style="color:var(--accent)">(62%)</span></span>
+      </div>
+      <div class="progress-bar-outer">
+        <div class="fill fill-orange" style="width:62%"></div>
+      </div>
+      <div style="margin-top:12px">
+        <div class="list-item" style="padding:6px 0">
+          <span><i class="fa-solid fa-flask" style="color:var(--red);width:18px"></i> Blood Tests</span>
+          <span class="tag tag-red">URGENT</span>
+        </div>
+        <div class="list-item" style="padding:6px 0">
+          <span><i class="fa-solid fa-heart" style="color:var(--red);width:18px"></i> ECG</span>
+          <span class="tag tag-red">URGENT</span>
+        </div>
+        <div class="list-item" style="padding:6px 0">
+          <span><i class="fa-solid fa-pills" style="color:var(--orange);width:18px"></i> Supplements Today</span>
+          <span class="tag tag-orange">Pending</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- HABITS -->
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fa-regular fa-circle-check"></i> Daily Habits</h2>
+        <span class="badge badge-live">0/6 Today</span>
+      </div>
+      <div class="habit-row">
+        <div class="habit-check pending"><i class="fa-solid fa-check"></i></div>
+        <span>Wake up at 6 AM</span>
+      </div>
+      <div class="habit-row">
+        <div class="habit-check pending"><i class="fa-solid fa-check"></i></div>
+        <span>Reading 30 min</span>
+      </div>
+      <div class="habit-row">
+        <div class="habit-check pending"><i class="fa-solid fa-check"></i></div>
+        <span>Journaling</span>
+      </div>
+      <div class="habit-row">
+        <div class="habit-check pending"><i class="fa-solid fa-check"></i></div>
+        <span>Social Media < 30 min</span>
+      </div>
+      <div class="habit-row">
+        <div class="habit-check pending"><i class="fa-solid fa-check"></i></div>
+        <span>NeuroSetu 1hr evening</span>
+      </div>
+      <div class="habit-row">
+        <div class="habit-check pending"><i class="fa-solid fa-check"></i></div>
+        <span>3 Sales Calls</span>
+      </div>
+    </div>
+
+    <!-- READING LIST -->
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fa-solid fa-book-open"></i> Reading List</h2>
+        <span class="badge badge-live">6 Books</span>
+      </div>
+      <div class="list-item">
+        <span>1. No More Mr. Nice Guy</span>
+        <span class="tag tag-purple">Primary</span>
+      </div>
+      <div class="list-item">
+        <span>2. StoryBrand (SB7)</span>
+        <span class="tag tag-green">Adopted</span>
+      </div>
+      <div class="list-item">
+        <span>3. Influence</span>
+        <span class="tag tag-orange">Next</span>
+      </div>
+      <div class="list-item">
+        <span>4. Atomic Habits</span>
+        <span style="color:var(--text3)">Upcoming</span>
+      </div>
+      <div class="list-item">
+        <span>5. The Model</span>
+        <span style="color:var(--text3)">Upcoming</span>
+      </div>
+      <div class="list-item">
+        <span>6. Atomic Attraction</span>
+        <span style="color:var(--text3)">Upcoming</span>
+      </div>
+    </div>
+
+    <!-- SYSTEM STATUS -->
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fa-solid fa-server"></i> System Status</h2>
+        <span class="badge badge-live">All Systems Go</span>
+      </div>
+      <div class="github-profile-mini">
+        <div class="github-avatar">🧠</div>
+        <div class="github-info">
+          <div class="gh-name">NeuroSetu VPS</div>
+          <div class="gh-stats">
+            <span><i class="fa-solid fa-globe"></i> 168.231.120.202</span>
+            <span><i class="fa-brands fa-ubuntu"></i> Linux</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div class="sys-chip">
+          <span class="sys-key">Coolify</span>
+          <span class="sys-val">:8000</span>
+        </div>
+        <div class="sys-chip">
+          <span class="sys-key">n8n</span>
+          <span class="sys-val">n8n.srv...hstgr.cloud</span>
+        </div>
+        <div class="sys-chip">
+          <span class="sys-key">Hermes GW</span>
+          <span class="sys-val" style="color:var(--accent)"><i class="fa-solid fa-circle" style="font-size:0.4rem;vertical-align:middle"></i> Running</span>
+        </div>
+        <div class="sys-chip">
+          <span class="sys-key">WhatsApp</span>
+          <span class="sys-val" style="color:var(--accent)"><i class="fa-solid fa-circle" style="font-size:0.4rem;vertical-align:middle"></i> Connected</span>
+        </div>
+        <div class="sys-chip">
+          <span class="sys-key">Node.js</span>
+          <span class="sys-val">v22.22.3</span>
+        </div>
+        <div class="sys-chip">
+          <span class="sys-key">Dashboard</span>
+          <span class="sys-val" style="color:var(--accent)">:9000</span>
+        </div>
+      </div>
+      <style>
+        .sys-chip {
+          background: rgba(30,41,59,0.3);
+          border-radius: 8px;
+          padding: 8px 10px;
+          font-size: 0.72rem;
+          display: flex;
+          justify-content: space-between;
+          gap: 4px;
+        }
+        .sys-key { color: var(--text2); }
+        .sys-val { font-weight: 500; }
+      </style>
+    </div>
+
+    <!-- ACCOUNTABILITY -->
+    <div class="card accountability-card">
+      <div class="card-header">
+        <h2><i class="fa-solid fa-fire" style="color:var(--orange)"></i> Accountability</h2>
+        <span class="badge tag-orange">Pattern Alert</span>
+      </div>
+      <div class="accountability-alert">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-body">
+          <p style="color:var(--orange);font-weight:600;margin-bottom:6px">PATTERN DETECTED</p>
+          <p>Mrinmoy pivots to new technical projects as <strong style="color:var(--red)">AVOIDANCE</strong> when client outreach feels uncomfortable.</p>
+        </div>
+      </div>
+      <div class="mantra-box">
+        <div class="mantra">"How does this get you a paying client?"</div>
+        <div class="attribution">— Hermes, every time you build instead of sell</div>
+      </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="card" style="grid-column:1/-1">
+      <div class="card-header">
+        <h2><i class="fa-solid fa-bolt"></i> Quick Actions</h2>
+        <span class="badge badge-live">Connected</span>
+      </div>
+      <div class="actions-bar">
+        <a href="https://wa.me/918918213286?text=Good%20morning%20Mrinmoy%20Briefing%20de" target="_blank" class="btn btn-primary"><i class="fa-regular fa-sun"></i> Morning Briefing</a>
+        <a href="https://wa.me/918918213286?text=Evening%20review%20karo" target="_blank" class="btn btn-secondary"><i class="fa-regular fa-moon"></i> Evening Review</a>
+        <a href="https://wa.me/918918213286?text=Mujhe%20accountability%20chahiye" target="_blank" class="btn btn-secondary"><i class="fa-solid fa-fire"></i> Accountability</a>
+        <a href="https://wa.me/918918213286?text=Aaj%20ka%20plan%20kya%20hai" target="_blank" class="btn btn-secondary"><i class="fa-regular fa-calendar"></i> Today's Plan</a>
+        <a href="http://168.231.120.202:8000" target="_blank" class="btn btn-secondary"><i class="fa-solid fa-gear"></i> Coolify</a>
+        <button class="btn btn-secondary" onclick="location.reload()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+      </div>
+      <div style="margin-top:14px;padding:12px;background:rgba(30,41,59,0.3);border-radius:12px;text-align:center;font-size:0.82rem">
+        <span style="color:var(--text2)">📱 WhatsApp pe mujhe instruction de — Main yahan VPS pe <strong style="color:var(--accent)">24/7</strong> active hoon!</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    🧠 NeuroSetu AI — Built by Mrinmoy
+    <div class="update-time" id="update-time">Loading...</div>
+  </div>
+
+</div>
+
+<script>
+// ===== LIVE CLOCK =====
+function updateTime() {
+  const now = new Date();
+  const ist = now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour12: false });
+  const [datePart, timePart] = ist.split(', ');
+  document.getElementById('live-time').textContent = timePart;
+  document.getElementById('update-time').textContent = '🔄 Last updated: ' + ist + ' IST';
+
+  // Greeting
+  const hour = now.getHours();
+  const greetingEl = document.getElementById('greeting-text');
+  if (hour < 12) greetingEl.textContent = 'Good Morning, Mrinmoy 🌅';
+  else if (hour < 17) greetingEl.textContent = 'Good Afternoon, Mrinmoy ☀️';
+  else if (hour < 21) greetingEl.textContent = 'Good Evening, Mrinmoy 🌆';
+  else greetingEl.textContent = 'Late Night Hustle, Mrinmoy 🌙';
+
+  // Date
+  document.getElementById('date-display').textContent = now.toLocaleDateString('en-IN', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Kolkata'
+  });
+}
+updateTime();
+setInterval(updateTime, 1000);
+
+// ===== GITHUB LIVE DATA =====
+async function loadGitHub() {
+  const section = document.getElementById('github-section');
+
+  try {
+    const [userResp, reposResp] = await Promise.all([
+      fetch('/api/github/users/mahatosnehabala250-project'),
+      fetch('/api/github/users/mahatosnehabala250-project/repos?per_page=30&sort=updated&type=public')
+    ]);
+
+    if (!userResp.ok || !reposResp.ok) throw new Error('API error');
+
+    const user = await userResp.json();
+    const repos = await reposResp.json();
+
+    // Update stat-king values
+    document.getElementById('gh-repos').textContent = user.public_repos || '--';
+
+    // Count unique languages
+    const langs = new Set(repos.map(r => r.language).filter(Boolean));
+    document.getElementById('gh-lang-count').textContent = langs.size;
+
+    // Build profile mini
+    let avatarLetter = (user.login || '🧠')[0].toUpperCase();
+    let repoHTML = `
+      <div class="github-profile-mini">
+        <div class="github-avatar">${avatarLetter}</div>
+        <div class="github-info">
+          <div class="gh-name">${user.login}</div>
+          <div class="gh-stats">
+            <span><i class="fa-regular fa-circle"></i> ${user.public_repos} repos</span>
+            <span><i class="fa-regular fa-star"></i> ${user.followers} followers</span>
+          </div>
+        </div>
+      </div>
+      <div class="repos-show">
+    `;
+
+    repos.forEach(r => {
+      const lang = r.language || 'Unknown';
+      const langClass = 'lang-' + (lang === 'TypeScript' ? 'ts' : lang === 'Python' ? 'py' : lang === 'HTML' ? 'html' : lang === 'JavaScript' ? 'js' : 'unknown');
+      const updated = new Date(r.updated_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+      repoHTML += `
+        <div class="repo-row">
+          <div class="repo-name"><a href="${r.html_url}" target="_blank">${r.name}</a></div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span class="repo-lang ${langClass}">${lang}</span>
+            <span class="repo-stars"><i class="fa-regular fa-star"></i> ${r.stargazers_count}</span>
+          </div>
+        </div>
+      `;
+    });
+
+    repoHTML += '</div>';
+    section.innerHTML = repoHTML;
+    document.getElementById('gh-badge').textContent = '● LIVE — ' + repos.length + ' repos';
+
+  } catch (e) {
+    section.innerHTML = `
+      <div style="text-align:center;padding:20px;color:var(--text2)">
+        <i class="fa-solid fa-cloud" style="font-size:2rem;opacity:0.4;margin-bottom:8px;display:block"></i>
+        GitHub API unavailable — showing static data
+      </div>
+      <div class="repos-show">
+        <div class="repo-row"><div class="repo-name">wb-grievance-portal</div><span class="repo-lang lang-ts">TypeScript</span></div>
+        <div class="repo-row"><div class="repo-name">school-management-erp</div><span class="repo-lang lang-ts">TypeScript</span></div>
+        <div class="repo-row"><div class="repo-name">NEEUROSETU-AI</div><span class="repo-lang lang-html">HTML</span></div>
+        <div class="repo-row"><div class="repo-name">divine-care-physiotherapy</div><span class="repo-lang lang-py">Python</span></div>
+        <div class="repo-row"><div class="repo-name">Aptek</div><span class="repo-lang lang-py">Python</span></div>
+        <div class="repo-row"><div class="repo-name">DREAM-LOOK</div><span class="repo-lang lang-ts">TypeScript</span></div>
+      </div>
+    `;
+    document.getElementById('gh-badge').className = 'badge badge-offline';
+    document.getElementById('gh-badge').textContent = '● CACHED';
+  }
+}
+
+loadGitHub();
+</script>
+</body>
+</html>
