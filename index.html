@@ -591,6 +591,9 @@ function navigate(page) {
 
 document.querySelectorAll('.nav-item').forEach(item => {
   item.addEventListener('click', e => {
+    const href = item.getAttribute('href');
+    // If it's a full page link (not a hash), let it navigate normally
+    if (href && !href.startsWith('#')) return;
     e.preventDefault();
     navigate(item.dataset.page);
   });
