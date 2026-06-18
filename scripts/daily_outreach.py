@@ -27,8 +27,8 @@ INTL_DAILY = 25
 def send_email(to, name, biz_name, city, country_type):
     """Send $500 pitch for international, ₹8k pitch for India"""
     is_intl = country_type == "international"
-    price = "$500" if is_intl else "₹8,000"
-    bonus = "FREE AI Chatbot" if is_intl else "basic setup"
+    price = "$500" if is_intl else "₹20,000"
+    bonus = "FREE AI Chatbot"
     
     subject = f"Website + {bonus} for {biz_name}"
     
@@ -44,12 +44,13 @@ def send_email(to, name, biz_name, city, country_type):
         body = f"""<html><body style="font-family:Arial,sans-serif;color:#333;">
 <p>नमस्ते,</p>
 <p>मैंने <b>{name}</b> को {city} में देखा। आपके अच्छे reviews हैं! लेकिन मैंने noticed किया कि आपकी अभी तक कोई website नहीं है।</p>
-<p>मैं professional websites बनाता हूँ सिर्फ <b>{price}</b> से शुरू — कोई hidden fee नहीं।</p>
+<p>मैं professional websites बनाता हूँ सिर्फ <b>{price}</b> में — और <b>FREE AI Chatbot</b> के साथ! आपकी website पर एक AI chatbot लगेगा जो ग्राहकों के सवालों का जवाब 24/7 देगा।</p>
 <ul>
-<li>Mobile-friendly design</li>
-<li>Google Maps + contact form</li>
-<li>Services & about page</li>
-<li>1 month free hosting</li>
+<li>✔ Mobile-friendly website design</li>
+<li>✔ AI Chatbot (FREE — ग्राहकों से बात करेगा)</li>
+<li>✔ Google Maps + contact form</li>
+<li>✔ Services & about page</li>
+<li>✔ 1 month free hosting</li>
 </ul>
 <p>क्या आप interested हैं? मैं samples दिखा सकता हूँ।</p>
 <p>धन्यवाद,<br><b>Mrinmoy</b><br>NeuroSetu AI<br>WhatsApp: +91 8918213286</p></body></html>"""
