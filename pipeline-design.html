@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeuroSetu CRM — Advanced Pipeline Design</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#08080e;color:#f1f5f9;overflow-x:hidden}
+.container{max-width:1400px;margin:0 auto;padding:20px}
+
+/* Top Header */
+.top-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.brand h1{font-size:1.3rem;background:linear-gradient(135deg,#00d4aa,#8b5cf6,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:flex;align-items:center;gap:8px}
+.brand span{font-size:0.7rem;color:#475569;-webkit-text-fill-color:#475569;display:block}
+.top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+/* Quick Stats Bar */
+.stats-bar{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:18px}
+.stat-card{background:rgba(16,16,28,0.7);border:1px solid rgba(30,41,59,0.4);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.stat-card .stat-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem}
+.stat-card .stat-info{flex:1}
+.stat-card .stat-num{font-size:1.1rem;font-weight:800}
+.stat-card .stat-label{font-size:0.62rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.3px;margin-top:1px}
+.stat-card .stat-change{font-size:0.6rem;font-weight:600;margin-top:2px}
+.ic-green{background:rgba(0,212,170,0.1);color:#00d4aa}
+.ic-purple{background:rgba(139,92,246,0.1);color:#a78bfa}
+.ic-orange{background:rgba(245,158,11,0.1);color:#fbbf24}
+.ic-red{background:rgba(239,68,68,0.1);color:#f87171}
+.ic-blue{background:rgba(59,130,246,0.1);color:#60a5fa}
+.ic-pink{background:rgba(236,72,153,0.1);color:#f472b6}
+
+/* Filter Bar */
+.filter-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.filter-bar input,.filter-bar select{background:rgba(30,41,59,0.3);border:1px solid rgba(30,41,59,0.4);border-radius:8px;padding:7px 12px;color:#f1f5f9;font-size:0.75rem;font-family:inherit}
+.filter-bar input::placeholder{color:#475569}
+.filter-bar .filter-active{background:rgba(0,212,170,0.08);border-color:rgba(0,212,170,0.2);color:#00d4aa}
+.filter-bar .btn-icon{background:rgba(30,41,59,0.3);border:1px solid rgba(30,41,59,0.4);border-radius:8px;color:#94a3b8;padding:7px 10px;cursor:pointer;font-size:0.75rem;transition:all 0.2s}
+.filter-bar .btn-icon:hover{border-color:#00d4aa;color:#00d4aa}
+
+/* Main Layout */
+.main-layout{display:grid;grid-template-columns:1fr 320px;gap:14px}
+@media(max-width:1100px){.main-layout{grid-template-columns:1fr}}
+
+/* === KANBAN === */
+.kanban-area{overflow-x:auto;padding-bottom:10px}
+.kanban{display:flex;gap:10px;min-width:900px}
+.column{flex:1;min-width:140px;max-width:200px;background:rgba(16,16,28,0.4);border:1px solid rgba(30,41,59,0.3);border-radius:14px;padding:10px;transition:all 0.2s}
+.column.drag-over{border-color:#00d4aa;background:rgba(0,212,170,0.03)}
+.col-header{font-size:0.7rem;font-weight:600;padding:6px 8px 10px;border-bottom:1px solid rgba(30,41,59,0.2);display:flex;justify-content:space-between;align-items:center}
+.col-header .col-title{display:flex;align-items:center;gap:6px}
+.col-header .col-badge{font-size:0.6rem;padding:2px 8px;border-radius:8px;background:rgba(30,41,59,0.3);color:#94a3b8}
+.col-header .col-value{font-size:0.6rem;color:#00d4aa;font-weight:600}
+.col-body{min-height:120px;padding:4px 0}
+
+/* Lead Card */
+.lead-card{background:rgba(26,26,42,0.6);border:1px solid rgba(30,41,59,0.3);border-radius:10px;padding:10px;margin-top:6px;cursor:grab;transition:all 0.2s;position:relative}
+.lead-card:hover{border-color:rgba(0,212,170,0.2);transform:translateY(-1px)}
+.lead-card.dragging{opacity:0.5}
+.lead-card .lead-priority{position:absolute;top:0;left:0;width:3px;height:100%;border-radius:10px 0 0 10px}
+.p-high{background:#ef4444}
+.p-med{background:#f59e0b}
+.p-low{background:#475569}
+.lead-card .lead-name{font-size:0.78rem;font-weight:600;display:flex;align-items:center;gap:6px}
+.lead-card .lead-name .score-dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0}
+.score-high{background:#00d4aa}
+.score-med{background:#fbbf24}
+.score-low{background:#ef4444}
+.lead-card .lead-meta{font-size:0.62rem;color:#94a3b8;margin-top:2px;display:flex;align-items:center;gap:6px}
+.lead-card .lead-amount{font-size:0.72rem;font-weight:700;color:#00d4aa;margin-top:4px}
+.lead-card .lead-footer{display:flex;justify-content:space-between;align-items:center;margin-top:4px;flex-wrap:wrap;gap:4px}
+.lead-card .lead-source{font-size:0.5rem;padding:2px 6px;border-radius:4px;background:rgba(30,41,59,0.3);color:#475569}
+.lead-card .lead-tags{display:flex;gap:3px;flex-wrap:wrap;margin-top:4px}
+.lead-card .lead-tags .lt{font-size:0.5rem;padding:1px 5px;border-radius:4px;background:rgba(0,212,170,0.06);color:#00d4aa;border:1px solid rgba(0,212,170,0.1)}
+.lead-card .lead-tags .lt.website{background:rgba(59,130,246,0.06);color:#60a5fa;border-color:rgba(59,130,246,0.1)}
+.lead-card .lead-tags .lt.urgent{background:rgba(239,68,68,0.06);color:#f87171;border-color:rgba(239,68,68,0.1)}
+.lead-card .lead-next{font-size:0.58rem;color:#a78bfa;margin-top:3px;display:flex;align-items:center;gap:4px}
+.lead-card .lead-call-btn{position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:6px;border:none;background:rgba(0,212,170,0.1);color:#00d4aa;cursor:pointer;font-size:0.65rem;display:flex;align-items:center;justify-content:center;transition:all 0.2s;opacity:0}
+.lead-card:hover .lead-call-btn{opacity:1}
+.lead-card .lead-call-btn:hover{background:#00d4aa;color:#08080e}
+.lead-card .lead-wa-btn{position:absolute;top:8px;right:34px;width:22px;height:22px;border-radius:6px;border:none;background:rgba(37,211,102,0.1);color:#25d366;cursor:pointer;font-size:0.65rem;display:flex;align-items:center;justify-content:center;transition:all 0.2s;opacity:0}
+.lead-card:hover .lead-wa-btn{opacity:1}
+.lead-card .lead-wa-btn:hover{background:#25d366;color:#08080e}
+.lead-card .lead-probability{font-size:0.55rem;color:#94a3b8;margin-top:3px}
+
+/* Add lead card */
+.add-lead-card{border:1px dashed rgba(100,100,120,0.25);border-radius:10px;padding:12px;margin-top:6px;text-align:center;cursor:pointer;transition:all 0.2s;color:#475569;font-size:0.72rem}
+.add-lead-card:hover{border-color:rgba(0,212,170,0.3);color:#00d4aa;background:rgba(0,212,170,0.02)}
+
+/* === SIDE PANEL === */
+.side-panel{background:rgba(16,16,28,0.7);border:1px solid rgba(30,41,59,0.3);border-radius:14px;padding:16px;overflow-y:auto;max-height:calc(100vh - 200px)}
+
+/* Analytics Section */
+.panel-section{margin-bottom:16px}
+.panel-section h4{font-size:0.72rem;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+
+/* Funnel */
+.funnel{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
+.funnel-stage{display:flex;align-items:center;gap:8px;font-size:0.68rem}
+.funnel-bar{height:18px;border-radius:4px;transition:width 0.5s;display:flex;align-items:center;padding:0 6px;font-size:0.55rem;font-weight:600;color:#08080e;min-width:30px}
+.funnel-label{width:60px;color:#94a3b8;flex-shrink:0}
+.funnel-count{width:30px;text-align:right;color:#94a3b8;flex-shrink:0}
+
+/* Activity Feed */
+.activity-feed{max-height:250px;overflow-y:auto}
+.activity-feed::-webkit-scrollbar{width:3px}
+.activity-feed::-webkit-scrollbar-thumb{background:rgba(30,41,59,0.5);border-radius:2px}
+.af-item{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid rgba(30,41,59,0.1);font-size:0.7rem}
+.af-item:last-child{border-bottom:none}
+.af-item .af-icon{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.6rem;flex-shrink:0}
+.af-item .af-text{flex:1;line-height:1.4}
+.af-item .af-text strong{color:#f1f5f9}
+.af-item .af-time{font-size:0.55rem;color:#475569;white-space:nowrap;flex-shrink:0}
+
+/* Call Timer */
+.call-timer{background:rgba(0,212,170,0.04);border:1px solid rgba(0,212,170,0.12);border-radius:10px;padding:12px;margin-bottom:14px;display:none}
+.call-timer.active{display:block}
+.call-timer .timer-display{font-size:1.8rem;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;color:#00d4aa}
+.call-timer .timer-lead{font-size:0.72rem;text-align:center;color:#94a3b8;margin-bottom:6px}
+.call-timer .timer-actions{display:flex;gap:6px;justify-content:center}
+
+/* Lead Detail (when clicking a lead) */
+.lead-detail-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);z-index:100;justify-content:flex-end}
+.lead-detail-overlay.active{display:flex}
+.lead-detail-panel{width:420px;max-width:90vw;height:100vh;background:rgba(10,10,20,0.98);border-left:1px solid rgba(30,41,59,0.4);padding:20px;overflow-y:auto}
+.lead-detail-panel::-webkit-scrollbar{width:3px}
+.lead-detail-panel::-webkit-scrollbar-thumb{background:rgba(30,41,59,0.5);border-radius:2px}
+.detail-close{position:absolute;top:16px;right:16px;background:rgba(30,41,59,0.3);border:1px solid rgba(30,41,59,0.3);border-radius:8px;color:#94a3b8;width:30px;height:30px;cursor:pointer;font-size:0.8rem}
+.detail-header-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+.detail-name-big{font-size:1.2rem;font-weight:700}
+.detail-value-big{font-size:1.3rem;font-weight:800;color:#00d4aa}
+.detail-info{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.detail-info .di{font-size:0.72rem}
+.detail-info .di .di-lbl{color:#94a3b8;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.3px}
+.detail-info .di .di-val{font-weight:500;margin-top:1px}
+.detail-actions{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.detail-timeline{position:relative;padding-left:16px;margin-top:10px}
+.detail-timeline::before{content:'';position:absolute;left:4px;top:4px;bottom:4px;width:1.5px;background:rgba(30,41,59,0.3)}
+.tl-entry{position:relative;padding:0 0 12px 12px}
+.tl-entry::before{content:'';position:absolute;left:-14px;top:5px;width:7px;height:7px;border-radius:50%;border:2px solid}
+.tl-entry.tl-call::before{border-color:#00d4aa;background:rgba(0,212,170,0.1)}
+.tl-entry.tl-note::before{border-color:#8b5cf6;background:rgba(139,92,246,0.1)}
+.tl-entry.tl-move::before{border-color:#f59e0b;background:rgba(245,158,11,0.1)}
+.tl-entry .tl-date{font-size:0.58rem;color:#475569}
+.tl-entry .tl-text{font-size:0.72rem;margin-top:2px}
+.tl-entry .tl-text .tl-tag{font-size:0.55rem;padding:1px 5px;border-radius:4px;margin-left:4px}
+.tl-entry .tl-text .tl-tag.tag-interested{background:rgba(0,212,170,0.1);color:#00d4aa}
+.tl-entry .tl-text .tl-tag.tag-moved{background:rgba(245,158,11,0.1);color:#fbbf24}
+.tl-entry .tl-text .tl-tag.tag-scheduled{background:rgba(139,92,246,0.1);color:#a78bfa}
+
+/* Buttons */
+.btn{padding:7px 14px;border-radius:8px;border:none;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px;transition:all 0.2s;text-decoration:none}
+.btn-primary{background:linear-gradient(135deg,#00a88a,#00d4aa);color:#08080e}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(0,212,170,0.2)}
+.btn-secondary{background:rgba(30,41,59,0.3);color:#94a3b8;border:1px solid rgba(30,41,59,0.3)}
+.btn-secondary:hover{border-color:#00d4aa;color:#f1f5f9}
+.btn-outline{background:transparent;border:1px solid rgba(0,212,170,0.2);color:#00d4aa}
+.btn-outline:hover{background:rgba(0,212,170,0.05)}
+.btn-sm{padding:5px 10px;font-size:0.65rem}
+.btn-danger{background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2)}
+.btn-danger:hover{background:rgba(239,68,68,0.15)}
+.btn-success{background:rgba(0,212,170,0.08);color:#00d4aa;border:1px solid rgba(0,212,170,0.15)}
+.btn-red-pulse{background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2);animation:pulseRed 1.5s infinite}
+@keyframes pulseRed{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.2)}50%{box-shadow:0 0 8px 2px rgba(239,68,68,0.15)}}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:200;justify-content:center;align-items:center}
+.modal-overlay.active{display:flex}
+.modal{background:rgba(16,16,28,0.98);border:1px solid rgba(30,41,59,0.4);border-radius:14px;padding:20px;width:90%;max-width:450px}
+.modal h3{font-size:0.9rem;margin-bottom:14px}
+.form-group{margin-bottom:10px}
+.form-group label{font-size:0.68rem;color:#94a3b8;margin-bottom:3px;display:block;font-weight:500}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:7px 10px;background:rgba(30,41,59,0.3);border:1px solid rgba(30,41,59,0.3);border-radius:7px;color:#f1f5f9;font-size:0.75rem;font-family:inherit}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:#00d4aa}
+.form-group textarea{resize:vertical;min-height:50px}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+
+/* Tag colors */
+.tag{font-size:0.6rem;padding:2px 8px;border-radius:6px;font-weight:600;display:inline-block}
+.tag-cold{background:rgba(100,100,120,0.1);color:#94a3b8}
+.tag-warm{background:rgba(59,130,246,0.1);color:#60a5fa}
+.tag-hot{background:rgba(245,158,11,0.1);color:#fbbf24}
+.tag-follow{background:rgba(139,92,246,0.1);color:#a78bfa}
+.tag-converted{background:rgba(0,212,170,0.1);color:#00d4aa}
+.tag-lost{background:rgba(239,68,68,0.1);color:#f87171}
+
+/* Lead Score */
+.lead-score{display:flex;align-items:center;gap:4px;margin-top:3px}
+.lead-score .ls-bg{width:40px;height:4px;background:rgba(30,41,59,0.4);border-radius:2px;overflow:hidden}
+.lead-score .ls-fill{height:100%;border-radius:2px;transition:width 0.3s}
+
+/* Responsive */
+@media(max-width:768px){
+  .stats-bar{grid-template-columns:repeat(3,1fr)}
+  .lead-detail-panel{width:100vw;max-width:100vw}
+}
+@media(max-width:500px){.stats-bar{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<!-- TOP HEADER -->
+<div class="top-header">
+  <div class="brand">
+    <h1><i class="fa-solid fa-arrow-trend-up" style="color:#00d4aa;-webkit-text-fill-color:initial"></i> NeuroSetu CRM</h1>
+    <span>Advanced Sales Pipeline Engine · Mrinmoy's Command Center</span>
+  </div>
+  <div class="top-actions">
+    <button class="btn btn-primary" onclick="alert('Lead modal opens')"><i class="fa-solid fa-plus"></i> New Lead</button>
+    <button class="btn btn-secondary"><i class="fa-solid fa-upload"></i> Import</button>
+    <button class="btn btn-secondary"><i class="fa-solid fa-download"></i> Export</button>
+    <button class="btn btn-secondary"><i class="fa-solid fa-gear"></i></button>
+  </div>
+</div>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat-card">
+    <div class="stat-icon ic-green"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+    <div class="stat-info">
+      <div class="stat-num">₹1,04,000</div>
+      <div class="stat-label">Pipeline Value</div>
+      <div class="stat-change" style="color:#00d4aa">↑ 12% this week</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon ic-purple"><i class="fa-solid fa-users"></i></div>
+    <div class="stat-info">
+      <div class="stat-num">9</div>
+      <div class="stat-label">Active Leads</div>
+      <div class="stat-change" style="color:#94a3b8">3 new this week</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon ic-orange"><i class="fa-solid fa-phone"></i></div>
+    <div class="stat-info">
+      <div class="stat-num">3/5</div>
+      <div class="stat-label">Calls Today</div>
+      <div class="stat-change" style="color:#fbbf24">Target: 5</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon ic-blue"><i class="fa-solid fa-calendar-check"></i></div>
+    <div class="stat-info">
+      <div class="stat-num">4</div>
+      <div class="stat-label">Follow-ups Today</div>
+      <div class="stat-change" style="color:#60a5fa">2 overdue ⚠️</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon ic-pink"><i class="fa-solid fa-percentage"></i></div>
+    <div class="stat-info">
+      <div class="stat-num">33%</div>
+      <div class="stat-label">Conversion Rate</div>
+      <div class="stat-change" style="color:#f472b6">3 of 9 converted</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon ic-red"><i class="fa-solid fa-fire"></i></div>
+    <div class="stat-info">
+      <div class="stat-num">₹25,000</div>
+      <div class="stat-label">Hot Deals</div>
+      <div class="stat-change" style="color:#f87171">2 hot leads 🔥</div>
+    </div>
+  </div>
+</div>
+
+<!-- CALL TIMER (hidden, shows when calling) -->
+<div class="call-timer" id="callTimer">
+  <div class="timer-lead">📞 Calling: <strong>Vikram Singh</strong> · ₹25,000</div>
+  <div class="timer-display" id="timerDisplay">00:00</div>
+  <div class="timer-actions">
+    <button class="btn btn-outline btn-sm"><i class="fa-solid fa-note-sticky"></i> Add Notes</button>
+    <button class="btn btn-red-pulse btn-sm" onclick="endCall()"><i class="fa-solid fa-phone-slash"></i> End Call</button>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <input placeholder="🔍 Search leads..." style="width:200px">
+  <select><option>All Stages</option><option>Cold</option><option>Warm</option><option>Hot</option><option>Follow-up</option></select>
+  <select><option>All Sources</option><option>WhatsApp</option><option>Referral</option><option>Website</option><option>Walk-in</option></select>
+  <select><option>Min Amount</option><option>₹5k+</option><option>₹10k+</option><option>₹20k+</option></select>
+  <select><option>Sort: Newest</option><option>Amount: High</option><option>Score: High</option><option>Next Follow-up</option></select>
+  <button class="btn-icon"><i class="fa-solid fa-sliders"></i></button>
+  <div style="flex:1"></div>
+  <span style="font-size:0.65rem;color:#475569">⚡ Lead Score: <span style="color:#00d4aa">Auto-calculated</span></span>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="main-layout">
+
+  <!-- KANBAN -->
+  <div class="kanban-area">
+    <div class="kanban" id="kanban">
+
+      <!-- COLD -->
+      <div class="column" data-stage="cold" ondrop="dropLead(event)" ondragover="allowDrop(event)" ondragenter="this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')">
+        <div class="col-header">
+          <div class="col-title">🧊 <span>Cold</span></div>
+          <div><span class="col-badge">3</span></div>
+        </div>
+        <div class="col-body">
+          <div class="lead-card" draggable="true" ondragstart="dragLead(event)" data-id="1" onclick="openDetail(1)">
+            <div class="lead-priority p-low"></div>
+            <span class="lead-call-btn" onclick="event.stopPropagation();startCall('Rahul Sharma')" title="Call Now"><i class="fa-solid fa-phone"></i></span>
+            <span class="lead-wa-btn" onclick="event.stopPropagation();" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></span>
+            <div class="lead-name"><span class="score-dot score-low"></span>Rahul Sharma</div>
+            <div class="lead-meta"><i class="fa-solid fa-store"></i> Sharma Sweets · <i class="fa-solid fa-indian-rupee-sign"></i>12k</div>
+            <div class="lead-footer">
+              <span class="lead-source"><i class="fa-brands fa-whatsapp"></i> WhatsApp</span>
+              <span class="lead-probability">20%</span>
+            </div>
+            <div class="lead-tags"><span class="lt website">website</span></div>
+            <div class="lead-score"><span style="font-size:0.55rem;color:#94a3b8">Score:</span><div class="ls-bg"><div class="ls-fill" style="width:25%;background:#ef4444"></div></div><span style="font-size:0.55rem;color:#ef4444">25</span></div>
+            <div class="lead-next">📅 Added 3 days ago</div>
+          </div>
+
+          <div class="lead-card" draggable="true" ondragstart="dragLead(event)" data-id="2" onclick="openDetail(2)">
+            <div class="lead-priority p-med"></div>
+            <span class="lead-call-btn" onclick="event.stopPropagation();startCall('Priya Verma')"><i class="fa-solid fa-phone"></i></span>
+            <span class="lead-wa-btn" onclick="event.stopPropagation();"><i class="fa-brands fa-whatsapp"></i></span>
+            <div class="lead-name"><span class="score-dot score-med"></span>Priya Verma</div>
+            <div class="lead-meta"><i class="fa-solid fa-store"></i> Priya Beauty · <i class="fa-solid fa-indian-rupee-sign"></i>18k</div>
+            <div class="lead-footer"><span class="lead-source"><i class="fa-solid fa-user"></i> Referral</span><span class="lead-probability">35%</span></div>
+            <div class="lead-tags"><span class="lt">makeup</span><span class="lt urgent">hot</span></div>
+            <div class="lead-score"><span style="font-size:0.55rem;color:#94a3b8">Score:</span><div class="ls-bg"><div class="ls-fill" style="width:45%;background:#f59e0b"></div></div><span style="font-size:0.55rem;color:#f59e0b">45</span></div>
+            <div class="lead-next">📞 Not called yet</div>
+          </div>
+
+          <div class="add-lead-card" onclick="alert('New Lead Modal')">
+            <i class="fa-solid fa-plus"></i> Add Lead
+          </div>
+        </div>
+      </div>
+
+      <!-- WARM -->
+      <div class="column" data-stage="warm" ondrop="dropLead(event)" ondragover="allowDrop(event)" ondragenter="this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')">
+        <div class="col-header">
+          <div class="col-title">🔶 <span>Warm</span></div>
+          <div><span class="col-badge">2</span></div>
+        </div>
+        <div class="col-body">
+          <div class="lead-card" draggable="true" ondragstart="dragLead(event)" data-id="3" onclick="openDetail(3)" style="border-color:rgba(59,130,246,0.15)">
+            <div class="lead-priority p-high"></div>
+            <span class="lead-call-btn" onclick="event.stopPropagation();startCall('Amit Kumar')"><i class="fa-solid fa-phone"></i></span>
+            <span class="lead-wa-btn" onclick="event.stopPropagation();"><i class="fa-brands fa-whatsapp"></i></span>
+            <div class="lead-name"><span class="score-dot score-high"></span>Amit Kumar</div>
+            <div class="lead-meta"><i class="fa-solid fa-stethoscope"></i> Amit Clinic · <i class="fa-solid fa-indian-rupee-sign"></i>15k</div>
+            <div class="lead-footer"><span class="lead-source"><i class="fa-brands fa-whatsapp"></i> WhatsApp</span><span class="lead-probability">60%</span></div>
+            <div class="lead-tags"><span class="lt">clinic</span><span class="lt website">ai-agent</span></div>
+            <div class="lead-score"><span style="font-size:0.55rem;color:#94a3b8">Score:</span><div class="ls-bg"><div class="ls-fill" style="width:65%;background:#f59e0b"></div></div><span style="font-size:0.55rem;color:#f59e0b">65</span></div>
+            <div class="lead-next">📞 Called yesterday · Follow-up in 2d</div>
+          </div>
+
+          <div class="lead-card" draggable="true" ondragstart="dragLead(event)" data-id="4" onclick="openDetail(4)" style="border-color:rgba(59,130,246,0.12)">
+            <div class="lead-priority p-med"></div>
+            <span class="lead-call-btn" onclick="event.stopPropagation();startCall('Sneha Das')"><i class="fa-solid fa-phone"></i></span>
+            <span class="lead-wa-btn" onclick="event.stopPropagation();"><i class="fa-brands fa-whatsapp"></i></span>
+            <div class="lead-name"><span class="score-dot score-med"></span>Sneha Das</div>
+            <div class="lead-meta"><i class="fa-solid fa-scissors"></i> Sneha Salon · <i class="fa-solid fa-indian-rupee-sign"></i>22k</div>
+            <div class="lead-footer"><span class="lead-source"><i class="fa-solid fa-globe"></i> Website</span><span class="lead-probability">50%</span></div>
+            <div class="lead-tags"><span class="lt urgent">📞 Call today!</span></div>
+            <div class="lead-score"><span style="font-size:0.55rem;color:#94a3b8">Score:</span><div class="ls-bg"><div class="ls-fill" style="width:55%;background:#f59e0b"></div></div><span style="font-size:0.55rem;color:#f59e0b">55</span></div>
+            <div class="lead-next">⚠️ Follow-up overdue!</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HOT -->
+      <div class="column" data-stage="hot" ondrop="dropLead(event)" ondragover="allowDrop(event)" ondragenter="this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')">
+        <div class="col-header">
+          <div class="col-title">🔥 <span>Hot</span></div>
+          <div style="color:#00d4aa">₹25k</div>
+        </div>
+        <div class="col-body">
+          <div class="lead-card" draggable="true" ondragstart="dragLead(event)" data-id="5" onclick="openDetail(5)" style="border-color:rgba(245,158,11,0.25);background:rgba(245,158,11,0.03)">
+            <div class="lead-priority p-high"></div>
+            <span class="lead-call-btn" onclick="event.stopPropagation();startCall('Vikram Singh')"><i class="fa-solid fa-phone"></i></span>
+            <span class="lead-wa-btn" onclick="event.stopPropagation();"><i class="fa-brands fa-whatsapp"></i></span>
+            <div class="lead-name"><span class="score-dot score-high"></span>Vikram Singh🔥</div>
+            <div class="lead-meta"><i class="fa-solid fa-utensils"></i> Singh Caterers · <i class="fa-solid fa-indian-rupee-sign"></i>25k</div>
+            <div class="lead-footer"><span class="lead-source"><i class="fa-solid fa-user"></i> Referral</span><span class="lead-probability" style="color:#fbbf24">80%</span></div>
+            <div class="lead-tags"><span class="lt">catering</span><span class="lt urgent">hot!</span><span class="lt website">website+seo</span></div>
+            <div class="lead-score"><span style="font-size:0.55rem;color:#94a3b8">Score:</span><div class="ls-bg"><div class="ls-fill" style="width:82%;background:#00d4aa"></div></div><span style="font-size:0.55rem;color:#00d4aa">82</span></div>
+            <div class="lead-next">📅 Follow-up: 20 June 10am</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOLLOW-UP -->
+      <div class="column" data-stage="followup" ondrop="dropLead(event)" ondragover="allowDrop(event)" ondragenter="this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')">
+        <div class="col-header">
+          <div class="col-title">📅 <span>Follow-up</span></div>
+          <div><span class="col-badge">2</span></div>
+        </div>
+        <div class="col-body">
+          <div class="lead-card" draggable="true" ondragstart="dragLead(event)" data-id="6" onclick="openDetail(6)" style="border-color:rgba(139,92,246,0.15)">
+            <div class="lead-priority p-med"></div>
+            <span class="lead-call-btn" onclick="event.stopPropagation();startCall('Meera Joshi')"><i class="fa-solid fa-phone"></i></span>
+            <span class="lead-wa-btn" onclick="event.stopPropagation();"><i class="fa-brands fa-whatsapp"></i></span>
+            <div class="lead-name"><span class="score-dot score-med"></span>Meera Joshi</div>
+            <div class="lead-meta"><i class="fa-solid fa-stethoscope"></i> Joshi Clinic · <i class="fa-solid fa-indian-rupee-sign"></i>15k</div>
+            <div class="lead-footer"><span class="lead-source"><i class="fa-brands fa-whatsapp"></i> WhatsApp</span><span class="lead-probability">65%</span></div>
+            <div class="lead-tags"><span class="lt">clinic</span><span class="lt website">ai-voice</span></div>
+            <div class="lead-score"><span style="font-size:0.55rem;color:#94a3b8">Score:</span><div class="ls-bg"><div class="ls-fill" style="width:60%;background:#f59e0b"></div></div><span style="font-size:0.55rem;color:#f59e0b">60</span></div>
+            <div class="lead-next" style="color:#a78bfa">📅 Tomorrow 10am</div>
+          </div>
+          <div class="lead-card" draggable="true" ondragstart="dragLead(event)" data-id="7" onclick="openDetail(7)" style="border-color:rgba(239,68,68,0.15);background:rgba(239,68,68,0.02)">
+            <div class="lead-priority p-high"></div>
+            <span class="lead-call-btn" onclick="event.stopPropagation();startCall('Ravi Sen')"><i class="fa-solid fa-phone"></i></span>
+            <span class="lead-wa-btn" onclick="event.stopPropagation();"><i class="fa-brands fa-whatsapp"></i></span>
+            <div class="lead-name"><span class="score-dot score-high"></span>Ravi Sen ⚠️</div>
+            <div class="lead-meta"><i class="fa-solid fa-utensils"></i> Sen Restaurant · <i class="fa-solid fa-indian-rupee-sign"></i>12k</div>
+            <div class="lead-footer"><span class="lead-source"><i class="fa-solid fa-globe"></i> Website</span><span class="lead-probability">45%</span></div>
+            <div class="lead-tags"><span class="lt urgent">⚠️ Overdue!</span></div>
+            <div class="lead-score"><span style="font-size:0.55rem;color:#94a3b8">Score:</span><div class="ls-bg"><div class="ls-fill" style="width:50%;background:#f59e0b"></div></div><span style="font-size:0.55rem;color:#f59e0b">50</span></div>
+            <div class="lead-next" style="color:#f87171">⚠️ Overdue! Was Friday</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONVERTED -->
+      <div class="column" data-stage="converted" ondrop="dropLead(event)" ondragover="allowDrop(event)" ondragenter="this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')">
+        <div class="col-header">
+          <div class="col-title">✅ <span>Won</span></div>
+          <div><span class="col-badge">1</span></div>
+        </div>
+        <div class="col-body">
+          <div class="lead-card" draggable="true" ondragstart="dragLead(event)" data-id="8" onclick="openDetail(8)" style="border-color:rgba(0,212,170,0.15);background:rgba(0,212,170,0.02)">
+            <div class="lead-name" style="color:#00d4aa">Divine Care</div>
+            <div class="lead-meta"><i class="fa-solid fa-hospital"></i> Physiotherapy · <i class="fa-solid fa-indian-rupee-sign"></i>8k</div>
+            <div class="lead-footer"><span class="lead-source"><i class="fa-brands fa-whatsapp"></i> WhatsApp</span></div>
+            <div class="lead-tags"><span class="lt" style="background:rgba(0,212,170,0.1);color:#00d4aa">✅ Client since Apr</span></div>
+            <div class="lead-next" style="color:#00d4aa">🎉 Converted ₹8,000</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOST -->
+      <div class="column" data-stage="lost" ondrop="dropLead(event)" ondragover="allowDrop(event)" ondragenter="this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')">
+        <div class="col-header">
+          <div class="col-title">❌ <span>Lost</span></div>
+          <div><span class="col-badge">1</span></div>
+        </div>
+        <div class="col-body">
+          <div class="lead-card" draggable="true" ondragstart="dragLead(event)" data-id="9" onclick="openDetail(9)" style="border-color:rgba(239,68,68,0.1);opacity:0.6">
+            <div class="lead-name" style="text-decoration:line-through">Anil Gupta</div>
+            <div class="lead-meta">Reason: Budget issues</div>
+            <div class="lead-amount" style="color:#ef4444;text-decoration:line-through">₹10,000</div>
+            <div class="lead-footer"><span class="lead-source"><i class="fa-solid fa-user"></i> Referral</span></div>
+            <div class="lead-next" style="color:#ef4444">❌ Lost — Budget issue</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SIDE PANEL -->
+  <div class="side-panel">
+
+    <!-- PIPELINE FUNNEL -->
+    <div class="panel-section">
+      <h4><i class="fa-solid fa-filter"></i> Pipeline Funnel</h4>
+      <div class="funnel">
+        <div class="funnel-stage"><span class="funnel-label">Cold</span><div class="funnel-bar" style="width:100%;background:#64748b">3</div><span class="funnel-count">3</span></div>
+        <div class="funnel-stage"><span class="funnel-label">Warm</span><div class="funnel-bar" style="width:80%;background:#3b82f6">2</div><span class="funnel-count">2</span></div>
+        <div class="funnel-stage"><span class="funnel-label">Hot</span><div class="funnel-bar" style="width:40%;background:#f59e0b">1</div><span class="funnel-count">1</span></div>
+        <div class="funnel-stage"><span class="funnel-label">Follow-up</span><div class="funnel-bar" style="width:80%;background:#8b5cf6">2</div><span class="funnel-count">2</span></div>
+        <div class="funnel-stage"><span class="funnel-label">Won</span><div class="funnel-bar" style="width:20%;background:#00d4aa">1</div><span class="funnel-count">1</span></div>
+      </div>
+    </div>
+
+    <!-- CONVERSION METRICS -->
+    <div class="panel-section">
+      <h4><i class="fa-solid fa-chart-simple"></i> Conversion Analytics</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div style="background:rgba(30,41,59,0.15);border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:0.85rem;font-weight:700;color:#00d4aa">33%</div>
+          <div style="font-size:0.58rem;color:#94a3b8">Win Rate</div>
+        </div>
+        <div style="background:rgba(30,41,59,0.15);border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:0.85rem;font-weight:700;color:#fbbf24">₹13k</div>
+          <div style="font-size:0.58rem;color:#94a3b8">Avg Deal Size</div>
+        </div>
+        <div style="background:rgba(30,41,59,0.15);border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:0.85rem;font-weight:700;color:#a78bfa">6 days</div>
+          <div style="font-size:0.58rem;color:#94a3b8">Avg Sales Cycle</div>
+        </div>
+        <div style="background:rgba(30,41,59,0.15);border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:0.85rem;font-weight:700;color:#60a5fa">3</div>
+          <div style="font-size:0.58rem;color:#94a3b8">Avg Calls/Deal</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIVITY FEED -->
+    <div class="panel-section">
+      <h4><i class="fa-solid fa-bolt"></i> Live Activity</h4>
+      <div class="activity-feed">
+        <div class="af-item">
+          <div class="af-icon" style="background:rgba(0,212,170,0.1);color:#00d4aa"><i class="fa-solid fa-phone"></i></div>
+          <div class="af-text">Called <strong>Vikram Singh</strong> — Interested in website + SEO</div>
+          <span class="af-time">2 min ago</span>
+        </div>
+        <div class="af-item">
+          <div class="af-icon" style="background:rgba(139,92,246,0.1);color:#a78bfa"><i class="fa-solid fa-arrow-right"></i></div>
+          <div class="af-text"><strong>Amit Kumar</strong> moved from Cold → Warm</div>
+          <span class="af-time">1h ago</span>
+        </div>
+        <div class="af-item">
+          <div class="af-icon" style="background:rgba(245,158,11,0.1);color:#fbbf24"><i class="fa-solid fa-calendar"></i></div>
+          <div class="af-text"><strong>Meera Joshi</strong> follow-up scheduled for tomorrow 10am</div>
+          <span class="af-time">3h ago</span>
+        </div>
+        <div class="af-item">
+          <div class="af-icon" style="background:rgba(0,212,170,0.1);color:#00d4aa"><i class="fa-solid fa-plus"></i></div>
+          <div class="af-text">New lead: <strong>Rahul Sharma</strong> (WhatsApp) — ₹12k</div>
+          <span class="af-time">5h ago</span>
+        </div>
+        <div class="af-item">
+          <div class="af-icon" style="background:rgba(236,72,153,0.1);color:#f472b6"><i class="fa-solid fa-trophy"></i></div>
+          <div class="af-text"><strong>Divine Care</strong> converted! ₹8,000 deal closed 🎉</div>
+          <span class="af-time">Yesterday</span>
+        </div>
+        <div class="af-item">
+          <div class="af-icon" style="background:rgba(239,68,68,0.1);color:#f87171"><i class="fa-solid fa-xmark"></i></div>
+          <div class="af-text"><strong>Anil Gupta</strong> marked as Lost — budget issue</div>
+          <span class="af-time">Yesterday</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TODAY'S CALL TARGET -->
+    <div class="panel-section">
+      <h4><i class="fa-solid fa-bullseye"></i> Today's Progress</h4>
+      <div style="background:rgba(30,41,59,0.15);border-radius:10px;padding:12px">
+        <div style="display:flex;justify-content:space-between;font-size:0.7rem;margin-bottom:6px">
+          <span>📞 Calls: <strong>3/5</strong></span>
+          <span style="color:#fbbf24">🔥 60%</span>
+        </div>
+        <div style="height:6px;background:rgba(30,41,59,0.3);border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:60%;border-radius:3px;background:linear-gradient(90deg,#f59e0b,#00d4aa);transition:width 0.5s"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.7rem;margin-top:8px">
+          <span>💰 Revenue: <strong>₹8k / ₹30k</strong></span>
+          <span style="color:#94a3b8">26%</span>
+        </div>
+        <div style="height:6px;background:rgba(30,41,59,0.3);border-radius:3px;overflow:hidden;margin-top:4px">
+          <div style="height:100%;width:26%;border-radius:3px;background:linear-gradient(90deg,#00d4aa,#8b5cf6);transition:width 0.5s"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEAD SOURCES -->
+    <div class="panel-section">
+      <h4><i class="fa-solid fa-circle-nodes"></i> Lead Sources</h4>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        <span style="font-size:0.65rem;padding:4px 10px;border-radius:8px;background:rgba(37,211,102,0.08);border:1px solid rgba(37,211,102,0.15);color:#25d366"><i class="fa-brands fa-whatsapp"></i> WhatsApp · 4</span>
+        <span style="font-size:0.65rem;padding:4px 10px;border-radius:8px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.15);color:#60a5fa"><i class="fa-solid fa-globe"></i> Website · 2</span>
+        <span style="font-size:0.65rem;padding:4px 10px;border-radius:8px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.15);color:#fbbf24"><i class="fa-solid fa-user"></i> Referral · 3</span>
+      </div>
+    </div>
+
+    <!-- QUICK CALL SCRIPTS -->
+    <div class="panel-section">
+      <h4><i class="fa-solid fa-script"></i> Call Script Snippets</h4>
+      <div style="font-size:0.68rem;background:rgba(30,41,59,0.15);border-radius:8px;padding:8px 10px;line-height:1.6;color:#94a3b8">
+        <div><span style="color:#a78bfa">💬 Cold:</span> "Hi, I'm Mrinmoy from NeuroSetu AI. We build AI solutions for businesses like yours..."</div>
+        <div style="margin-top:4px"><span style="color:#fbbf24">💬 Warm:</span> "Following up on our chat about your website. Have you had a chance to think about it?"</div>
+        <div style="margin-top:4px"><span style="color:#00d4aa">💬 Hot:</span> "Ready to move forward? I can have your website ready in 3 days. Let's start today!"</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- LEAD DETAIL SLIDE-OUT PANEL -->
+<div class="lead-detail-overlay" id="leadDetailOverlay" onclick="if(event.target===this)closeDetail()">
+  <div class="lead-detail-panel" id="leadDetailPanel">
+    <button class="detail-close" onclick="closeDetail()"><i class="fa-solid fa-xmark"></i></button>
+    
+    <div class="detail-header-row">
+      <div>
+        <div class="detail-name-big" id="dd-name">Vikram Singh</div>
+        <div style="font-size:0.7rem;color:#94a3b8;margin-top:2px"><i class="fa-solid fa-store"></i> Singh Caterers · <i class="fa-solid fa-phone"></i> 54321 12345</div>
+      </div>
+      <div class="detail-value-big" id="dd-amount">₹25,000</div>
+    </div>
+
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
+      <span class="tag tag-hot" id="dd-status">🔥 Hot</span>
+      <span style="font-size:0.6rem;padding:2px 8px;border-radius:6px;background:rgba(37,211,102,0.08);color:#25d366"><i class="fa-brands fa-whatsapp"></i> Referral</span>
+      <span style="font-size:0.6rem;padding:2px 8px;border-radius:6px;background:rgba(0,212,170,0.08);color:#00d4aa"><i class="fa-solid fa-phone"></i> Called 3 times</span>
+    </div>
+
+    <div class="detail-info">
+      <div class="di"><div class="di-lbl">Source</div><div class="di-val">📱 Referral from Amit</div></div>
+      <div class="di"><div class="di-lbl">Business Type</div><div class="di-val">🏪 Catering</div></div>
+      <div class="di"><div class="di-lbl">Next Follow-up</div><div class="di-val" style="color:#a78bfa">📅 20 June 10:00 AM</div></div>
+      <div class="di"><div class="di-lbl">Last Contact</div><div class="di-val">📞 17 June</div></div>
+      <div class="di"><div class="di-lbl">Lead Score</div><div class="di-val" style="color:#00d4aa">⭐ 82/100 — High</div></div>
+      <div class="di"><div class="di-lbl">Deal Probability</div><div class="di-val" style="color:#fbbf24">80%</div></div>
+    </div>
+
+    <div class="detail-actions">
+      <button class="btn btn-primary btn-sm" onclick="startCall('Vikram Singh')"><i class="fa-solid fa-phone"></i> Call Now</button>
+      <button class="btn btn-outline btn-sm"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+      <button class="btn btn-secondary btn-sm"><i class="fa-solid fa-calendar"></i> Reschedule</button>
+      <button class="btn btn-secondary btn-sm"><i class="fa-solid fa-pen"></i> Edit</button>
+    </div>
+
+    <div class="detail-actions" style="margin-top:0">
+      <button class="btn btn-success btn-sm"><i class="fa-solid fa-check"></i> Move to Follow-up</button>
+      <button class="btn btn-success btn-sm"><i class="fa-solid fa-trophy"></i> Mark Won</button>
+      <button class="btn btn-danger btn-sm"><i class="fa-solid fa-xmark"></i> Mark Lost</button>
+    </div>
+
+    <div style="margin-bottom:8px">
+      <div style="font-size:0.62rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:4px">📝 Notes</div>
+      <div style="font-size:0.72rem;background:rgba(30,41,59,0.15);border-radius:8px;padding:8px 10px;color:#94a3b8;line-height:1.5">
+        Very interested in website + SEO package. Wants to see portfolio first. 
+        <span style="display:inline-flex;gap:4px;margin-top:4px;flex-wrap:wrap">
+          <span style="font-size:0.55rem;padding:1px 6px;border-radius:4px;background:rgba(0,212,170,0.06);color:#00d4aa;border:1px solid rgba(0,212,170,0.1)">#website</span>
+          <span style="font-size:0.55rem;padding:1px 6px;border-radius:4px;background:rgba(59,130,246,0.06);color:#60a5fa;border:1px solid rgba(59,130,246,0.1)">#seo</span>
+          <span style="font-size:0.55rem;padding:1px 6px;border-radius:4px;background:rgba(245,158,11,0.06);color:#fbbf24;border:1px solid rgba(245,158,11,0.1)">#needs_portfolio</span>
+        </span>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:0.62rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:8px">📜 Call History Timeline</div>
+      <div class="detail-timeline">
+        <div class="tl-entry tl-call">
+          <div class="tl-date">17 June 2026 · 11:30 AM · 5 min</div>
+          <div class="tl-text">📞 Called — Discussed pricing. Very interested!<span class="tl-tag tag-interested">Interested ✅</span></div>
+        </div>
+        <div class="tl-entry tl-move">
+          <div class="tl-date">17 June · After call</div>
+          <div class="tl-text">🔄 Status changed: Warm → <strong>Hot</strong><span class="tl-tag tag-moved">Auto-updated</span></div>
+        </div>
+        <div class="tl-entry tl-call">
+          <div class="tl-date">14 June 2026 · 2:15 PM · 8 min</div>
+          <div class="tl-text">📞 Called — Wants proposal. Asked about pricing.<span class="tl-tag tag-interested">Interested ✅</span></div>
+        </div>
+        <div class="tl-entry tl-move">
+          <div class="tl-date">14 June · After call</div>
+          <div class="tl-text">🔄 Status changed: Cold → <strong>Warm</strong><span class="tl-tag tag-moved">Auto-updated</span></div>
+        </div>
+        <div class="tl-entry tl-note">
+          <div class="tl-date">12 June 2026 · 4:00 PM</div>
+          <div class="tl-text">📝 Note: Amit referred Vikram. Said he's looking for a website urgently.</div>
+        </div>
+        <div class="tl-entry tl-call">
+          <div class="tl-date">10 June 2026 · 4:00 PM · 3 min</div>
+          <div class="tl-text">📞 First call — Initial inquiry about website<span class="tl-tag tag-scheduled">Follow-up set</span></div>
+        </div>
+        <div class="tl-entry tl-move">
+          <div class="tl-date">10 June · Lead created</div>
+          <div class="tl-text">➕ Lead created via WhatsApp — ₹25,000</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CALL LOG MODAL (shown after call ends) -->
+<div class="modal-overlay" id="callLogModal">
+  <div class="modal">
+    <h3><i class="fa-solid fa-phone" style="color:#00d4aa"></i> Log Call — <span id="callLogLead">Vikram Singh</span></h3>
+    <div class="form-group">
+      <label>Call Duration</label>
+      <div style="font-size:1.2rem;font-weight:700;color:#00d4aa" id="callDuration">00:00</div>
+    </div>
+    <div class="form-group"><label>Outcome</label>
+      <select id="callOutcome">
+        <option value="interested">✅ Interested — wants to proceed</option>
+        <option value="maybe">🔶 Maybe — needs time to decide</option>
+        <option value="not_interested">❌ Not interested</option>
+        <option value="followup">📅 Follow-up needed — auto-schedule</option>
+        <option value="no_answer">📞 No answer — will call again</option>
+        <option value="converted">🎉 Converted! — Closed the deal</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Notes</label><textarea id="callNotes" rows="2" placeholder="What did they say? Any objections? Next steps?"></textarea></div>
+    
+    <div id="autoScheduleBlock" style="background:rgba(139,92,246,0.05);border:1px solid rgba(139,92,246,0.12);border-radius:8px;padding:10px;margin-bottom:8px;display:none">
+      <div style="font-size:0.68rem;color:#a78bfa;font-weight:600;margin-bottom:6px">⚡ Auto-Schedule Engine</div>
+      <div class="form-group" style="margin-bottom:6px">
+        <label>Next Follow-up Date</label>
+        <input type="date" id="nextFollowupDate">
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label>Follow-up Time</label>
+        <input type="time" id="nextFollowupTime" value="10:00">
+      </div>
+      <div style="font-size:0.62rem;color:#94a3b8;margin-top:4px">
+        <i class="fa-solid fa-calendar-check"></i> Calendar event will be created automatically
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeCallModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCallLog()">
+        <i class="fa-solid fa-check"></i> Save & <span id="autoScheduleBtnText">Update Lead</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== DRAG & DROP =====
+let draggedLead = null;
+function allowDrop(e) { e.preventDefault(); }
+function dragLead(e) {
+  draggedLead = e.target.closest('.lead-card');
+  draggedLead.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+function dropLead(e) {
+  e.preventDefault();
+  document.querySelectorAll('.column').forEach(c => c.classList.remove('drag-over'));
+  if (!draggedLead) return;
+  const targetCol = e.target.closest('.column');
+  const body = targetCol?.querySelector('.col-body');
+  if (!body) return;
+  // Remove the add-lead-card temporarily if it's the last one
+  body.insertBefore(draggedLead, body.lastElementChild);
+  draggedLead.classList.remove('dragging');
+  draggedLead = null;
+  // Update stage indicator
+  alert('✅ Lead moved! Auto-saves to Supabase');
+}
+
+// ===== CALL TIMER =====
+let timerInterval = null;
+let seconds = 0;
+let currentCallLead = '';
+
+function startCall(leadName) {
+  currentCallLead = leadName;
+  document.getElementById('callLogLead').textContent = leadName;
+  
+  const timer = document.getElementById('callTimer');
+  timer.classList.add('active');
+  seconds = 0;
+  updateTimerDisplay();
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    seconds++;
+    updateTimerDisplay();
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+  const s = String(seconds % 60).padStart(2, '0');
+  document.getElementById('timerDisplay').textContent = m + ':' + s;
+}
+
+function endCall() {
+  if (timerInterval) clearInterval(timerInterval);
+  document.getElementById('callTimer').classList.remove('active');
+  document.getElementById('callDuration').textContent = document.getElementById('timerDisplay').textContent;
+  
+  // Show call log modal
+  document.getElementById('callLogModal').classList.add('active');
+  
+  // Auto-set next follow-up date (2 days from now)
+  const d = new Date();
+  d.setDate(d.getDate() + 2);
+  document.getElementById('nextFollowupDate').value = d.toISOString().split('T')[0];
+  
+  // Show/hide auto-schedule based on outcome
+  document.getElementById('callOutcome').addEventListener('change', function() {
+    const block = document.getElementById('autoScheduleBlock');
+    const btnText = document.getElementById('autoScheduleBtnText');
+    if (this.value === 'followup') {
+      block.style.display = 'block';
+      btnText.textContent = 'Create Follow-up';
+    } else if (this.value === 'converted') {
+      block.style.display = 'none';
+      btnText.textContent = 'Mark as Won 🎉';
+    } else {
+      block.style.display = 'none';
+      btnText.textContent = 'Update Lead';
+    }
+  });
+  
+  document.getElementById('nextFollowupDate').value = d.toISOString().split('T')[0];
+}
+
+function saveCallLog() {
+  const outcome = document.getElementById('callOutcome').value;
+  const needsFollowup = outcome === 'followup';
+  const converted = outcome === 'converted';
+  
+  let msg = '✅ Call saved!\n\n';
+  msg += '• Duration: ' + document.getElementById('callDuration').textContent + '\n';
+  msg += '• Outcome: ' + document.getElementById('callOutcome').options[document.getElementById('callOutcome').selectedIndex].text + '\n';
+  msg += '• Notes logged\n';
+  
+  if (needsFollowup) {
+    const nextDate = document.getElementById('nextFollowupDate').value;
+    const nextTime = document.getElementById('nextFollowupTime').value;
+    msg += '\n⚡ AUTO-SCHEDULED:\n';
+    msg += '• 📅 Calendar event created for ' + nextDate + ' at ' + nextTime + '\n';
+    msg += '• 🔄 Lead moved to Follow-up column\n';
+    msg += '• 📊 Lead score updated';
+  } else if (converted) {
+    msg += '\n🎉 CONVERTED!\n';
+    msg += '• Lead moved to Won column\n';
+    msg += '• Revenue updated\n';
+    msg += '• 🚀 WhatsApp notification sent!';
+  } else {
+    msg += '\n• Lead status updated\n• Lead score recalculated';
+  }
+  
+  closeCallModal();
+  alert(msg);
+}
+
+function closeCallModal() {
+  document.getElementById('callLogModal').classList.remove('active');
+  document.getElementById('callNotes').value = '';
+}
+
+// ===== LEAD DETAIL =====
+function openDetail(id) {
+  document.getElementById('leadDetailOverlay').classList.add('active');
+}
+
+function closeDetail() {
+  document.getElementById('leadDetailOverlay').classList.remove('active');
+}
+
+// ===== INIT =====
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active') });
+});
+
+// Set default date
+const d = new Date();
+d.setDate(d.getDate() + 2);
+document.getElementById('nextFollowupDate').value = d.toISOString().split('T')[0];
+</script>
+</body>
+</html>
