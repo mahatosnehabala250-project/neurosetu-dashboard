@@ -28,6 +28,14 @@ STATIC_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
+    def end_headers(self):
+        if self.path.endswith('.html'):
+            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            self.send_header('Pragma', 'no-cache')
+            self.send_header('Expires', '0')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        super().end_headers()
+
     def do_GET(self):
         if self.path.startswith("/api/github/"):
             return self.handle_github()
