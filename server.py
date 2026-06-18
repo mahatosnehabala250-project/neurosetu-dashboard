@@ -47,6 +47,28 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.path = "/index.html"
         return super().do_GET()
 
+    def do_POST(self):
+        if self.path.startswith("/api/supabase/"):
+            return self.handle_supabase()
+        self.send_error(405)
+
+    def do_PATCH(self):
+        if self.path.startswith("/api/supabase/"):
+            return self.handle_supabase()
+        self.send_error(405)
+
+    def do_DELETE(self):
+        if self.path.startswith("/api/supabase/"):
+            return self.handle_supabase()
+        self.send_error(405)
+
+    def do_OPTIONS(self):
+        self.send_response(204)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, apikey, Authorization")
+        self.end_headers()
+
     def handle_github(self):
         if not GITHUB_TOKEN:
             self.send_error(503, "GitHub token not configured")
@@ -95,9 +117,15 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if not SUPABASE_SERVICE_KEY:
             self.send_error(503, "Supabase not configured")
             return
+        method = self.command
         endpoint = self.path.replace("/api/supabase/", "", 1)
         url = f"https://{SUPABASE_REF}.supabase.co/rest/v1/{endpoint}"
-        req = urllib.request.Request(url)
+        body = None
+        if method in ("POST", "PATCH", "PUT"):
+            length = int(self.headers.get("Content-Length", 0))
+            if length:
+                body = self.rfile.read(length)
+        req = urllib.request.Request(url, data=body, method=method)
         req.add_header("apikey", SUPABASE_ANON_KEY)
         req.add_header("Authorization", f"Bearer {SUPABASE_SERVICE_KEY}")
         req.add_header("Content-Type", "application/json")
@@ -105,18 +133,24 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         try:
             ctx = ssl.create_default_context()
             resp = urllib.request.urlopen(req, context=ctx, timeout=15)
-            data = json.loads(resp.read().decode())
-            self.send_response(200)
+            data = None
+            content = resp.read().decode()
+            if content.strip():
+                data = json.loads(content)
+            self.send_response(resp.status)
             self.send_header("Content-Type", "application/json")
             self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Access-Control-Expose-Headers", "*")
             self.end_headers()
-            self.wfile.write(json.dumps(data).encode())
+            if data is not None:
+                self.wfile.write(json.dumps(data).encode())
         except urllib.error.HTTPError as e:
             self.send_response(e.code)
             self.send_header("Content-Type", "application/json")
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
-            err = json.dumps({"error": str(e.code), "reason": str(e.reason)})
+            err_body = e.read().decode()
+            err = json.dumps({"error": str(e.code), "reason": str(e.reason), "detail": err_body})
             self.wfile.write(err.encode())
         except Exception as e:
             self.send_response(500)

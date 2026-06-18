@@ -560,9 +560,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 
 <script>
 // ===== CONFIG =====
-let SB_CONFIG = {};
 let CAL_DATE = new Date();
-let supabaseUrl = '';
 const today = () => new Date().toISOString().split('T')[0];
 
 // ===== SIDEBAR =====
@@ -619,9 +617,7 @@ document.querySelectorAll('.modal-overlay').forEach(m => {
 
 // ===== SUPABASE HELPERS =====
 async function sbFetch(endpoint, opts = {}) {
-  const url = supabaseUrl + '/rest/v1/' + endpoint;
-  const headers = { 'apikey': SB_CONFIG.anon_key, 'Content-Type': 'application/json' };
-  const resp = await fetch(url, { headers, ...opts });
+  const resp = await fetch('/api/supabase/' + endpoint, { headers: { 'Content-Type': 'application/json' }, ...opts });
   if (!resp.ok && resp.status !== 204) throw new Error(await resp.text());
   if (opts.method === 'DELETE' || resp.status === 204) return null;
   return resp.json();
@@ -639,15 +635,7 @@ async function sbDelete(table) {
   return sbFetch(table, { method: 'DELETE' });
 }
 
-async function initSupabase() {
-  try {
-    const resp = await fetch('/api/supabase-config');
-    SB_CONFIG = await resp.json();
-    supabaseUrl = 'https://' + SB_CONFIG.ref + '.supabase.co';
-  } catch (e) {
-    console.error('Supabase init failed:', e);
-  }
-}
+async function initSupabase() {}
 
 // ===== LIVE CLOCK =====
 function updateClock() {

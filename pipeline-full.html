@@ -206,12 +206,12 @@ body{font-family:Inter,sans-serif;background:#08080e;color:#f1f5f9;overflow-x:hi
 </div></div>
 
 <script>
-var SB={},supabaseUrl='',allLeads=[],draggedLead=null,timerInterval=null,timerSeconds=0,activeCallLeadId=null,activeCallLeadName='';
+var allLeads=[],draggedLead=null,timerInterval=null,timerSeconds=0,activeCallLeadId=null,activeCallLeadName='';
 var today=function(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 
-function initSupabase(){fetch('/api/supabase-config').then(function(r){return r.json()}).then(function(c){SB=c;supabaseUrl='https://'+c.ref+'.supabase.co';loadAll();setInterval(loadAll,30000)})}
+function initSupabase(){loadAll();setInterval(loadAll,30000)}
 
-function sb(endpoint,opts){opts=opts||{};var url=supabaseUrl+'/rest/v1/'+endpoint;var h={'apikey':SB.anon_key,'Content-Type':'application/json'};return fetch(url,{headers:h,method:opts.method||'GET',body:opts.body||null}).then(function(r){if(r.status===204||r.status===201)try{return r.text().then(function(t){return t?JSON.parse(t):null})}catch(e){return null};if(!r.ok)throw new Error();return r.json()})}
+function sb(endpoint,opts){opts=opts||{};return fetch('/api/supabase/'+endpoint,{headers:{'Content-Type':'application/json'},method:opts.method||'GET',body:opts.body||null}).then(function(r){if(r.status===204||r.status===201)try{return r.text().then(function(t){return t?JSON.parse(t):null})}catch(e){return null};if(!r.ok)throw new Error(r.status);return r.json()})}
 function sbGet(e){return sb(e)}
 function sbPost(e,d){return sb(e,{method:'POST',body:JSON.stringify(d)})}
 function sbPatch(e,d){return sb(e,{method:'PATCH',body:JSON.stringify(d)})}
