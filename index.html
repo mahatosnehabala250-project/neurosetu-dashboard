@@ -5,1262 +5,1419 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NeuroSetu AI — Mrinmoy's Dashboard</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-  @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css');
-
-  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-  :root {
-    --bg: #08080e;
-    --bg2: #0d0d18;
-    --card: rgba(16, 16, 28, 0.75);
-    --card-hover: rgba(26, 26, 48, 0.85);
-    --accent: #00d4aa;
-    --accent-dark: #00a88a;
-    --purple: #8b5cf6;
-    --pink: #ec4899;
-    --orange: #f59e0b;
-    --red: #ef4444;
-    --text: #f1f5f9;
-    --text2: #94a3b8;
-    --text3: #475569;
-    --border: rgba(30, 41, 59, 0.5);
-  }
-
-  body {
-    font-family: 'Inter', -apple-system, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* Animated gradient background */
-  .bg-canvas {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    z-index: -1;
-    overflow: hidden;
-  }
-  .bg-canvas .orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.3;
-    animation: orbFloat 20s ease-in-out infinite;
-  }
-  .bg-canvas .orb:nth-child(1) {
-    width: 500px; height: 500px;
-    background: var(--accent);
-    top: -10%; left: -10%;
-    animation-delay: 0s;
-  }
-  .bg-canvas .orb:nth-child(2) {
-    width: 400px; height: 400px;
-    background: var(--purple);
-    bottom: -10%; right: -10%;
-    animation-delay: -5s;
-  }
-  .bg-canvas .orb:nth-child(3) {
-    width: 300px; height: 300px;
-    background: var(--pink);
-    top: 40%; left: 50%;
-    animation-delay: -10s;
-  }
-  .bg-canvas .orb:nth-child(4) {
-    width: 350px; height: 350px;
-    background: var(--orange);
-    bottom: 20%; left: -5%;
-    animation-delay: -15s;
-  }
-
-  @keyframes orbFloat {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    25% { transform: translate(80px, -60px) scale(1.1); }
-    50% { transform: translate(-40px, 80px) scale(0.9); }
-    75% { transform: translate(60px, 40px) scale(1.05); }
-  }
-
-  .container {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 20px;
-    position: relative;
-    z-index: 1;
-  }
-
-  /* Particle grid overlay */
-  .particle-grid {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    z-index: 0;
-    background-image:
-      radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0);
-    background-size: 40px 40px;
-    pointer-events: none;
-  }
-
-  /* ===== HEADER ===== */
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 24px 28px;
-    margin-bottom: 28px;
-    background: var(--card);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-
-  .logo-section {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .logo-icon {
-    width: 48px; height: 48px;
-    background: linear-gradient(135deg, var(--accent), var(--purple));
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    box-shadow: 0 4px 20px rgba(0, 212, 170, 0.2);
-  }
-
-  .logo-text h1 {
-    font-size: 1.5rem;
-    font-weight: 800;
-    background: linear-gradient(135deg, var(--accent), var(--purple), var(--pink));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    letter-spacing: -0.5px;
-  }
-
-  .logo-text span {
-    font-size: 0.8rem;
-    color: var(--text2);
-    font-weight: 400;
-  }
-
-  .status-strip {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  .status-chip {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.75rem;
-    padding: 6px 14px;
-    background: rgba(30, 41, 59, 0.5);
-    border-radius: 20px;
-    border: 1px solid var(--border);
-    color: var(--text2);
-    font-weight: 500;
-  }
-
-  .status-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    display: inline-block;
-  }
-  .dot-green { background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,0.5); }
-  .dot-yellow { background: var(--orange); box-shadow: 0 0 8px rgba(245,158,11,0.5); }
-  .dot-red { background: var(--red); box-shadow: 0 0 8px rgba(239,68,68,0.5); }
-
-  /* ===== GREETING ===== */
-  .greeting {
-    text-align: center;
-    margin-bottom: 28px;
-    padding: 32px;
-    background: linear-gradient(135deg, rgba(0,212,170,0.05), rgba(139,92,246,0.05));
-    border: 1px solid rgba(0,212,170,0.1);
-    border-radius: 20px;
-  }
-
-  .greeting .time-greeting {
-    font-size: 2.2rem;
-    font-weight: 800;
-    margin-bottom: 4px;
-  }
-  .greeting .sub-greeting {
-    color: var(--text2);
-    font-size: 1rem;
-  }
-  .greeting .sub-greeting strong {
-    color: var(--accent);
-    font-weight: 600;
-  }
-
-  /* ===== STAT ROW ===== */
-  .stat-king {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-
-  .stat-orb {
-    background: var(--card);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 18px;
-    text-align: center;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .stat-orb::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 3px;
-    border-radius: 16px 16px 0 0;
-  }
-
-  .stat-orb:hover {
-    transform: translateY(-4px);
-    border-color: rgba(0,212,170,0.3);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-  }
-
-  .stat-orb .stat-val {
-    font-size: 1.8rem;
-    font-weight: 800;
-    line-height: 1.2;
-  }
-  .stat-orb .stat-lbl {
-    font-size: 0.72rem;
-    color: var(--text2);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 4px;
-  }
-  .stat-orb .stat-icon {
-    font-size: 1.2rem;
-    margin-bottom: 6px;
-    opacity: 0.6;
-  }
-
-  .stat-orb.green::before { background: var(--accent); }
-  .stat-orb.green .stat-val { color: var(--accent); }
-  .stat-orb.purple::before { background: var(--purple); }
-  .stat-orb.purple .stat-val { color: var(--purple); }
-  .stat-orb.orange::before { background: var(--orange); }
-  .stat-orb.orange .stat-val { color: var(--orange); }
-  .stat-orb.pink::before { background: var(--pink); }
-  .stat-orb.pink .stat-val { color: var(--pink); }
-  .stat-orb.red::before { background: var(--red); }
-  .stat-orb.red .stat-val { color: var(--red); }
-  .stat-orb.blue::before { background: #3b82f6; }
-  .stat-orb.blue .stat-val { color: #3b82f6; }
-
-  /* ===== GRID ===== */
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-
-  .card {
-    background: var(--card);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 22px;
-    transition: all 0.3s ease;
-  }
-
-  .card:hover {
-    border-color: rgba(0,212,170,0.2);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-  }
-
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-  }
-
-  .card-header h2 {
-    font-size: 1rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .card-header .badge {
-    font-size: 0.65rem;
-    font-weight: 600;
-    padding: 3px 10px;
-    border-radius: 20px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .badge-live { background: rgba(0,212,170,0.15); color: var(--accent); border: 1px solid rgba(0,212,170,0.3); }
-  .badge-offline { background: rgba(100,100,120,0.15); color: var(--text3); border: 1px solid rgba(100,100,120,0.3); }
-
-  /* ===== GITHUB SECTION ===== */
-  .repo-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-    transition: background 0.2s;
-    gap: 8px;
-  }
-  .repo-row:last-child { border-bottom: none; }
-  .repo-row:hover { padding-left: 6px; }
-
-  .repo-row .repo-name {
-    font-size: 0.82rem;
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 180px;
-  }
-  .repo-row .repo-name a {
-    color: var(--text);
-    text-decoration: none;
-  }
-  .repo-row .repo-name a:hover { color: var(--accent); }
-
-  .repo-row .repo-lang {
-    font-size: 0.65rem;
-    padding: 2px 10px;
-    border-radius: 10px;
-    font-weight: 500;
-    white-space: nowrap;
-  }
-  .lang-ts { background: rgba(49,120,198,0.2); color: #3178c6; }
-  .lang-py { background: rgba(55,118,171,0.2); color: #3776ab; }
-  .lang-html { background: rgba(227,76,38,0.2); color: #e34c26; }
-  .lang-js { background: rgba(241,224,90,0.2); color: #f1e05a; }
-  .lang-unknown { background: rgba(100,100,120,0.15); color: var(--text3); }
-
-  .repo-row .repo-stars {
-    font-size: 0.7rem;
-    color: var(--text2);
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .github-profile-mini {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px;
-    background: rgba(30,41,59,0.3);
-    border-radius: 12px;
-    margin-bottom: 14px;
-  }
-
-  .github-avatar {
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), var(--purple));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.3rem;
-    color: var(--bg);
-    font-weight: 700;
-  }
-
-  .github-info {
-    flex: 1;
-  }
-  .github-info .gh-name {
-    font-size: 0.9rem;
-    font-weight: 600;
-  }
-  .github-info .gh-stats {
-    font-size: 0.7rem;
-    color: var(--text2);
-    display: flex;
-    gap: 10px;
-    margin-top: 2px;
-  }
-
-  .github-loading {
-    text-align: center;
-    padding: 30px;
-    color: var(--text2);
-  }
-
-  .github-loading .spinner {
-    display: inline-block;
-    width: 24px; height: 24px;
-    border: 2px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin-bottom: 8px;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* ===== METRICS ===== */
-  .metric-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  .metric {
-    background: rgba(30,41,59,0.3);
-    border-radius: 12px;
-    padding: 14px;
-    text-align: center;
-  }
-
-  .metric .value {
-    font-size: 1.5rem;
-    font-weight: 700;
-    line-height: 1.2;
-  }
-  .metric .label {
-    font-size: 0.68rem;
-    color: var(--text2);
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    margin-top: 4px;
-  }
-
-  /* ===== LIST ITEMS ===== */
-  .list-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.82rem;
-    gap: 10px;
-  }
-  .list-item:last-child { border-bottom: none; }
-
-  .tag {
-    font-size: 0.65rem;
-    padding: 3px 10px;
-    border-radius: 10px;
-    font-weight: 600;
-    white-space: nowrap;
-  }
-  .tag-green { background: rgba(0,212,170,0.15); color: var(--accent); }
-  .tag-purple { background: rgba(139,92,246,0.15); color: var(--purple); }
-  .tag-orange { background: rgba(245,158,11,0.15); color: var(--orange); }
-  .tag-red { background: rgba(239,68,68,0.15); color: var(--red); }
-  .tag-gray { background: rgba(100,100,120,0.15); color: var(--text3); }
-
-  /* ===== HEALTH ===== */
-  .health-stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-
-  .health-item {
-    background: rgba(30,41,59,0.3);
-    border-radius: 10px;
-    padding: 10px;
-    text-align: center;
-  }
-  .health-item .val {
-    font-size: 1.2rem;
-    font-weight: 700;
-  }
-  .health-item .lbl {
-    font-size: 0.6rem;
-    color: var(--text2);
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    margin-top: 2px;
-  }
-
-  /* ===== PROGRESS ===== */
-  .progress-bar-outer {
-    height: 6px;
-    background: rgba(30,41,59,0.5);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-top: 6px;
-  }
-  .progress-bar-outer .fill {
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.8s ease;
-  }
-  .fill-green { background: linear-gradient(90deg, var(--accent-dark), var(--accent)); }
-  .fill-purple { background: linear-gradient(90deg, #6d28d9, var(--purple)); }
-  .fill-orange { background: linear-gradient(90deg, #d97706, var(--orange)); }
-  .fill-red { background: linear-gradient(90deg, #dc2626, var(--red)); }
-
-  /* ===== HABITS ===== */
-  .habit-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 0;
-    font-size: 0.82rem;
-  }
-
-  .habit-check {
-    width: 18px; height: 18px;
-    border-radius: 50%;
-    border: 2px solid var(--text3);
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.55rem;
-    transition: all 0.3s;
-  }
-  .habit-check.done {
-    border-color: var(--accent);
-    background: var(--accent);
-    color: var(--bg);
-  }
-  .habit-check.pending { border-color: var(--text3); }
-
-  /* ===== ACCOUNTABILITY ===== */
-  .accountability-card {
-    grid-column: 1 / -1;
-  }
-
-  .accountability-alert {
-    display: flex;
-    gap: 14px;
-    padding: 14px;
-    background: rgba(245,158,11,0.08);
-    border: 1px solid rgba(245,158,11,0.2);
-    border-radius: 12px;
-    margin-bottom: 12px;
-  }
-
-  .accountability-alert .alert-icon {
-    font-size: 1.8rem;
-    flex-shrink: 0;
-  }
-
-  .accountability-alert .alert-body p {
-    font-size: 0.82rem;
-    line-height: 1.6;
-    color: var(--text2);
-  }
-  .accountability-alert .alert-body strong {
-    color: var(--orange);
-  }
-
-  .mantra-box {
-    padding: 14px;
-    background: linear-gradient(135deg, rgba(0,212,170,0.06), rgba(139,92,246,0.06));
-    border: 1px solid rgba(0,212,170,0.15);
-    border-radius: 12px;
-    text-align: center;
-  }
-
-  .mantra-box .mantra {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--accent);
-  }
-  .mantra-box .attribution {
-    font-size: 0.7rem;
-    color: var(--text3);
-    margin-top: 4px;
-  }
-
-  /* ===== ACTIONS ===== */
-  .actions-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 14px;
-  }
-
-  .btn {
-    padding: 10px 18px;
-    border-radius: 12px;
-    border: none;
-    font-size: 0.78rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-family: inherit;
-  }
-
-  .btn-primary {
-    background: linear-gradient(135deg, var(--accent-dark), var(--accent));
-    color: var(--bg);
-  }
-  .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0,212,170,0.3);
-  }
-
-  .btn-secondary {
-    background: rgba(30,41,59,0.5);
-    color: var(--text);
-    border: 1px solid var(--border);
-  }
-  .btn-secondary:hover {
-    border-color: var(--accent);
-    transform: translateY(-2px);
-  }
-
-  /* ===== FOOTER ===== */
-  .footer {
-    text-align: center;
-    padding: 24px;
-    color: var(--text3);
-    font-size: 0.72rem;
-    border-top: 1px solid var(--border);
-    margin-top: 28px;
-  }
-
-  .footer .update-time {
-    margin-top: 4px;
-    font-size: 0.65rem;
-    color: var(--text3);
-  }
-
-  /* ===== RESPONSIVE ===== */
-  @media (max-width: 720px) {
-    .container { padding: 12px; }
-    .header { padding: 16px; }
-    .greeting .time-greeting { font-size: 1.5rem; }
-    .grid { grid-template-columns: 1fr; }
-    .stat-king { grid-template-columns: repeat(2, 1fr); }
-    .metric-grid { grid-template-columns: 1fr 1fr; }
-    .health-stats { grid-template-columns: repeat(3, 1fr); }
-    .logo-text h1 { font-size: 1.2rem; }
-    .status-chip { font-size: 0.65rem; padding: 4px 10px; }
-  }
-
-  @media (max-width: 420px) {
-    .stat-king { grid-template-columns: 1fr; }
-    .metric-grid { grid-template-columns: 1fr; }
-    .repos-show { max-height: 250px; }
-  }
-
-  /* Repo scrollable area */
-  .repos-show {
-    max-height: 300px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
-  }
-  .repos-show::-webkit-scrollbar { width: 4px; }
-  .repos-show::-webkit-scrollbar-track { background: transparent; }
-  .repos-show::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-  /* Pulse animation for live indicator */
-  .pulse-dot {
-    animation: pulse 2s ease-in-out infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-  }
-
-  /* Skeleton loading */
-  .skeleton {
-    background: linear-gradient(90deg, rgba(30,41,59,0.3) 25%, rgba(30,41,59,0.5) 50%, rgba(30,41,59,0.3) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-    border-radius: 8px;
-  }
-  @keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-  }
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#08080e;--bg2:#0d0d18;--sidebar:#0a0a14;--card:rgba(16,16,28,0.78);--card-hover:rgba(26,26,48,0.85);--accent:#00d4aa;--accent-dark:#00a88a;--purple:#8b5cf6;--pink:#ec4899;--orange:#f59e0b;--red:#ef4444;--blue:#3b82f6;--text:#f1f5f9;--text2:#94a3b8;--text3:#475569;--border:rgba(30,41,59,0.5);--sidebar-w:220px;--header-h:60px}
+html,body{height:100%}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+
+/* Sidebar */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sidebar-w);background:var(--sidebar);border-right:1px solid var(--border);padding:0;display:flex;flex-direction:column;z-index:100;overflow-y:auto}
+.sidebar::-webkit-scrollbar{width:3px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.sidebar .brand{padding:18px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.sidebar .brand .logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--purple));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.sidebar .brand h2{font-size:0.95rem;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sidebar .brand span{font-size:0.6rem;color:var(--text3);-webkit-text-fill-color:var(--text3);display:block;margin-top:-2px}
+.nav-items{flex:1;padding:8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:all 0.2s;font-size:0.82rem;color:var(--text2);margin-bottom:2px;text-decoration:none}
+.nav-item:hover{background:rgba(30,41,59,0.4);color:var(--text)}
+.nav-item.active{background:rgba(0,212,170,0.08);color:var(--accent);border:1px solid rgba(0,212,170,0.12)}
+.nav-item .nav-icon{width:20px;text-align:center;font-size:0.9rem}
+.nav-item .nav-badge{margin-left:auto;font-size:0.6rem;background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:8px;color:var(--text3)}
+.sidebar-footer{padding:12px 16px;border-top:1px solid var(--border);font-size:0.65rem;color:var(--text3);text-align:center}
+
+/* Main area */
+.main{margin-left:var(--sidebar-w);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* Top bar */
+.topbar{height:var(--header-h);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0;background:var(--bg)}
+.topbar .page-title{font-size:1.1rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.topbar .page-title .title-icon{color:var(--accent)}
+.topbar .top-right{display:flex;align-items:center;gap:12px}
+.topbar .live-time{font-size:0.75rem;color:var(--text2)}
+.topbar .status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px;vertical-align:middle}
+.topbar .status-dot.online{background:#22c55e;box-shadow:0 0 8px rgba(34,197,94,0.4)}
+.refresh-btn{background:rgba(30,41,59,0.3);border:1px solid var(--border);color:var(--text2);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:0.75rem;transition:all 0.2s}
+.refresh-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* Page content */
+.page-content{flex:1;overflow-y:auto;padding:20px 24px}
+.page-content::-webkit-scrollbar{width:4px}
+.page-content::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.page{display:none;animation:fadeIn 0.3s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Cards */
+.card{background:var(--card);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:16px;padding:20px;transition:all 0.3s;margin-bottom:16px}
+.card:hover{border-color:rgba(0,212,170,0.15)}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.card-header h3{font-size:0.9rem;font-weight:600;display:flex;align-items:center;gap:8px}
+.badge{font-size:0.62rem;padding:3px 10px;border-radius:10px;font-weight:600}
+.badge-live{background:rgba(0,212,170,0.1);color:var(--accent);border:1px solid rgba(0,212,170,0.2)}
+.badge-warn{background:rgba(245,158,11,0.1);color:var(--orange);border:1px solid rgba(245,158,11,0.2)}
+.badge-red{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.2)}
+
+/* Grid layouts */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+
+/* Stats cards */
+.stat-card{background:rgba(30,41,59,0.3);border-radius:12px;padding:16px;text-align:center}
+.stat-card .stat-val{font-size:1.6rem;font-weight:800;line-height:1.2}
+.stat-card .stat-lbl{font-size:0.68rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.3px;margin-top:4px}
+.stat-card .stat-icon{font-size:1.2rem;margin-bottom:6px;opacity:0.5}
+.stat-card.green .stat-val{color:var(--accent)}
+.stat-card.purple .stat-val{color:var(--purple)}
+.stat-card.orange .stat-val{color:var(--orange)}
+.stat-card.red .stat-val{color:var(--red)}
+.stat-card.blue .stat-val{color:var(--blue)}
+.stat-card.pink .stat-val{color:var(--pink)}
+
+/* Table */
+.data-table{width:100%;border-collapse:collapse;font-size:0.8rem}
+.data-table th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--text2);font-weight:500;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.3px}
+.data-table td{padding:8px 10px;border-bottom:1px solid rgba(30,41,59,0.3)}
+.data-table tr:hover td{background:rgba(30,41,59,0.15)}
+.data-table .empty{text-align:center;padding:30px;color:var(--text3)}
+
+/* Buttons */
+.btn{padding:8px 16px;border-radius:10px;border:none;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px;font-family:inherit;text-decoration:none}
+.btn-primary{background:linear-gradient(135deg,var(--accent-dark),var(--accent));color:var(--bg)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,212,170,0.25)}
+.btn-secondary{background:rgba(30,41,59,0.4);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--accent);transform:translateY(-1px)}
+.btn-sm{padding:5px 10px;font-size:0.7rem}
+.btn-danger{background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.2)}
+.btn-danger:hover{background:rgba(239,68,68,0.25)}
+.btn-success{background:rgba(0,212,170,0.1);color:var(--accent);border:1px solid rgba(0,212,170,0.2)}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:200;justify-content:center;align-items:center}
+.modal-overlay.active{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;width:90%;max-width:480px;max-height:80vh;overflow-y:auto}
+.modal h3{font-size:1rem;font-weight:700;margin-bottom:16px}
+.form-group{margin-bottom:12px}
+.form-group label{display:block;font-size:0.75rem;color:var(--text2);margin-bottom:4px;font-weight:500}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:8px 12px;background:rgba(30,41,59,0.4);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.82rem;font-family:inherit;transition:border 0.2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--accent)}
+.form-group textarea{resize:vertical;min-height:60px}
+.form-group select{appearance:none;cursor:pointer}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+
+/* Tags */
+.tag{font-size:0.65rem;padding:2px 10px;border-radius:10px;font-weight:600;display:inline-block}
+.tag-green{background:rgba(0,212,170,0.12);color:var(--accent)}
+.tag-purple{background:rgba(139,92,246,0.12);color:var(--purple)}
+.tag-orange{background:rgba(245,158,11,0.12);color:var(--orange)}
+.tag-red{background:rgba(239,68,68,0.12);color:var(--red)}
+.tag-blue{background:rgba(59,130,246,0.12);color:var(--blue)}
+.tag-gray{background:rgba(100,100,120,0.12);color:var(--text3)}
+
+/* Calendar */
+.calendar-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.calendar-nav .month-label{font-size:1.1rem;font-weight:700}
+.calendar-nav button{background:rgba(30,41,59,0.3);border:1px solid var(--border);color:var(--text2);width:32px;height:32px;border-radius:8px;cursor:pointer;transition:all 0.2s}
+.calendar-nav button:hover{border-color:var(--accent);color:var(--accent)}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:12px}
+.calendar-grid .day-header{text-align:center;font-size:0.7rem;color:var(--text3);padding:6px 0;font-weight:500;text-transform:uppercase}
+.calendar-grid .day-cell{text-align:center;padding:8px 4px;font-size:0.78rem;border-radius:8px;cursor:pointer;transition:all 0.15s;position:relative;min-height:40px}
+.calendar-grid .day-cell:hover{background:rgba(30,41,59,0.3)}
+.calendar-grid .day-cell.other-month{color:var(--text3);opacity:0.3}
+.calendar-grid .day-cell.today{background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.2);color:var(--accent);font-weight:700}
+.calendar-grid .day-cell.selected{background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);color:var(--purple)}
+.calendar-grid .day-cell.has-events::after{content:'';position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--accent)}
+.calendar-grid .day-cell .event-count{position:absolute;top:2px;right:2px;font-size:0.55rem;background:var(--accent);color:var(--bg);width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700}
+
+/* Event list */
+.event-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;margin-bottom:4px;transition:background 0.2s;cursor:pointer}
+.event-item:hover{background:rgba(30,41,59,0.2)}
+.event-item .event-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.event-dot.meeting{background:var(--purple)}
+.event-dot.call{background:var(--accent)}
+.event-dot.task{background:var(--blue)}
+.event-dot.health{background:var(--orange)}
+.event-dot.sales{background:var(--pink)}
+.event-dot.general{background:var(--text3)}
+.event-item .event-info{flex:1}
+.event-item .event-info .ev-title{font-size:0.8rem;font-weight:500}
+.event-item .event-info .ev-meta{font-size:0.65rem;color:var(--text2)}
+.event-item .event-check{width:18px;height:18px;border-radius:50%;border:2px solid var(--text3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;font-size:0.5rem;flex-shrink:0}
+.event-item .event-check.done{border-color:var(--accent);background:var(--accent);color:var(--bg)}
+
+/* Habit streak */
+.habit-streak{display:flex;gap:4px;margin:8px 0}
+.habit-streak .streak-day{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.55rem;font-weight:600;transition:all 0.2s}
+.habit-streak .streak-day.done{background:var(--accent);color:var(--bg)}
+.habit-streak .streak-day.missed{background:rgba(239,68,68,0.2);color:var(--red)}
+.habit-streak .streak-day.future{background:rgba(30,41,59,0.3);color:var(--text3)}
+
+/* Chart container */
+.chart-container{position:relative;height:200px;margin:12px 0}
+.chart-container canvas{width:100%!important;height:100%!important}
+
+/* Loading */
+.loading{text-align:center;padding:30px;color:var(--text2)}
+.loading .spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Gap */
+.gap-8{gap:8px}
+.gap-12{gap:12px}
+.mt-8{margin-top:8px}
+.mt-12{margin-top:12px}
+.mt-16{margin-top:16px}
+.mb-12{margin-bottom:12px}
+.flex{display:flex}
+.flex-wrap{flex-wrap:wrap}
+.items-center{align-items:center}
+.justify-between{justify-content:space-between}
+.text-center{text-align:center}
+.text-right{text-align:right}
+.w-full{width:100%}
+
+/* Responsive sidebar */
+.sidebar-toggle{display:none;background:none;border:none;color:var(--text2);font-size:1.2rem;cursor:pointer;padding:4px}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);transition:transform 0.3s}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .sidebar-toggle{display:block}
+  .topbar .page-title{font-size:0.9rem}
+  .page-content{padding:12px}
+}
 </style>
 </head>
 <body>
 
-<div class="bg-canvas">
-  <div class="orb"></div>
-  <div class="orb"></div>
-  <div class="orb"></div>
-  <div class="orb"></div>
+<!--=== SIDEBAR ===-->
+<div class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="logo-icon">🧠</div>
+    <div>
+      <h2>NeuroSetu AI</h2>
+      <span>Mrinmoy's Dashboard</span>
+    </div>
+  </div>
+  <div class="nav-items" id="nav-items">
+    <a class="nav-item active" data-page="overview" href="#overview"><span class="nav-icon">📊</span> Overview</a>
+    <a class="nav-item" data-page="calendar" href="#calendar"><span class="nav-icon">📅</span> Calendar</a>
+    <a class="nav-item" data-page="sales" href="#sales"><span class="nav-icon">📈</span> Sales Pipeline</a>
+    <a class="nav-item" data-page="health" href="#health"><span class="nav-icon">❤️</span> Health</a>
+    <a class="nav-item" data-page="habits" href="#habits"><span class="nav-icon">✅</span> Habits</a>
+    <a class="nav-item" data-page="finance" href="#finance"><span class="nav-icon">💰</span> Finance</a>
+    <a class="nav-item" data-page="clients" href="#clients"><span class="nav-icon">👥</span> Clients</a>
+    <a class="nav-item" data-page="github" href="#github"><span class="nav-icon">💻</span> GitHub</a>
+  </div>
+  <div class="sidebar-footer">🧠 NeuroSetu AI v3.0</div>
 </div>
-<div class="particle-grid"></div>
 
-<div class="container">
-
-  <!-- HEADER -->
-  <div class="header">
-    <div class="logo-section">
-      <div class="logo-icon">🧠</div>
-      <div class="logo-text">
-        <h1>NeuroSetu AI</h1>
-        <span><i class="fa-regular fa-compass"></i> Mrinmoy's Command Center</span>
-      </div>
+<!--=== MAIN ===-->
+<div class="main">
+  <!-- Top bar -->
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="sidebar-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+      <div class="page-title" id="page-title"><span class="title-icon">📊</span> Overview</div>
     </div>
-    <div class="status-strip">
-      <div class="status-chip"><span class="status-dot dot-green pulse-dot"></span> Hermes Agent</div>
-      <div class="status-chip"><span class="status-dot dot-green pulse-dot"></span> WhatsApp Bridge</div>
-      <div class="status-chip"><span class="status-dot dot-yellow"></span> Revenue: ₹0</div>
-      <div class="status-chip"><i class="fa-regular fa-clock"></i> <span id="live-time">--:--</span></div>
+    <div class="top-right">
+      <span class="live-time"><span class="status-dot online"></span><span id="live-time">--:--</span></span>
+      <button class="refresh-btn" onclick="refreshAll()"><i class="fa-solid fa-rotate"></i> Refresh</button>
     </div>
   </div>
 
-  <!-- GREETING -->
-  <div class="greeting">
-    <div class="time-greeting" id="greeting-text">Good Morning, Mrinmoy 🌅</div>
-    <div class="sub-greeting">Purulia, West Bengal · <span id="date-display"></span> · <strong>#BuildInPublic</strong></div>
-  </div>
+  <!--=== PAGE CONTENT ===-->
+  <div class="page-content" id="page-content">
 
-  <!-- STAT KING ROW -->
-  <div class="stat-king">
-    <div class="stat-orb green">
-      <div class="stat-icon"><i class="fa-solid fa-code-branch"></i></div>
-      <div class="stat-val" id="gh-repos">--</div>
-      <div class="stat-lbl">GitHub Repos</div>
-    </div>
-    <div class="stat-orb blue">
-      <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
-      <div class="stat-val" id="gh-lang-count">--</div>
-      <div class="stat-lbl">Languages Used</div>
-    </div>
-    <div class="stat-orb red">
-      <div class="stat-icon"><i class="fa-solid fa-indian-rupee-sign"></i></div>
-      <div class="stat-val" id="stat-revenue">₹0</div>
-      <div class="stat-lbl">Revenue This Month</div>
-    </div>
-    <div class="stat-orb orange">
-      <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
-      <div class="stat-val" id="stat-clients">0</div>
-      <div class="stat-lbl">Paying Clients</div>
-    </div>
-    <div class="stat-orb purple">
-      <div class="stat-icon"><i class="fa-solid fa-weight"></i></div>
-      <div class="stat-val" style="font-size:1.5rem">73 <span style="font-size:0.8rem;font-weight:400">→ 65</span></div>
-      <div class="stat-lbl">Weight Goal (kg)</div>
-    </div>
-    <div class="stat-orb pink">
-      <div class="stat-icon"><i class="fa-solid fa-calendar-check"></i></div>
-      <div class="stat-val" id="stat-calls">0</div>
-      <div class="stat-lbl">Sales Calls Today</div>
-    </div>
-  </div>
-
-  <!-- MAIN GRID -->
-  <div class="grid">
-
-    <!-- GITHUB REPOS -->
-    <div class="card">
-      <div class="card-header">
-        <h2><i class="fa-brands fa-github"></i> GitHub Repositories</h2>
-        <span class="badge badge-live" id="gh-badge">● LIVE</span>
+    <!--========== OVERVIEW ==========-->
+    <div class="page active" id="page-overview">
+      <div class="flex items-center justify-between mb-12 flex-wrap gap-8">
+        <div>
+          <h2 style="font-size:1.4rem;font-weight:800" id="greeting-text">Good Morning, Mrinmoy 🌅</h2>
+          <span style="font-size:0.78rem;color:var(--text2)" id="date-display"></span>
+        </div>
       </div>
-      <div id="github-section">
-        <div class="github-loading">
-          <div class="spinner"></div>
-          <div>Fetching your repos...</div>
+
+      <div class="grid-4" id="overview-stats">
+        <div class="stat-card green"><div class="stat-icon">💰</div><div class="stat-val" id="ov-revenue">₹0</div><div class="stat-lbl">Revenue This Month</div></div>
+        <div class="stat-card orange"><div class="stat-icon">📞</div><div class="stat-val" id="ov-calls">0</div><div class="stat-lbl">Calls Today</div></div>
+        <div class="stat-card purple"><div class="stat-icon">👥</div><div class="stat-val" id="ov-clients">0</div><div class="stat-lbl">Paying Clients</div></div>
+        <div class="stat-card red"><div class="stat-icon">🔥</div><div class="stat-val" id="ov-leads">0</div><div class="stat-lbl">Warm Leads</div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><h3>📅 Today's Events</h3><span class="badge badge-live" id="today-event-count">0</span></div>
+          <div id="today-events"><div class="loading"><div class="spinner"></div><div>Loading...</div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>📋 Today's Plan</h3><a class="btn btn-sm btn-primary" onclick="openModal('plan-modal')">+ Add</a></div>
+          <div id="today-plans"><div class="loading"><div class="spinner"></div><div>Loading...</div></div></div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><h3>✅ Habits Today</h3><span class="badge badge-live" id="ov-habits-count">0/0</span></div>
+          <div id="ov-habits-list"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>❤️ Health Snapshot</h3><span class="badge badge-live">Weight</span></div>
+          <div id="ov-health"><div class="loading"><div class="spinner"></div></div></div>
         </div>
       </div>
     </div>
 
-    <!-- BUSINESS PULSE -->
-    <div class="card">
-      <div class="card-header">
-        <h2><i class="fa-solid fa-chart-line"></i> Business Pulse</h2>
-        <span class="badge badge-live"><i class="fa-regular fa-bell"></i> Today</span>
+    <!--========== CALENDAR ==========-->
+    <div class="page" id="page-calendar">
+      <div class="flex items-center justify-between mb-12 flex-wrap gap-8">
+        <h2 style="font-size:1.2rem;font-weight:700"><i class="fa-solid fa-calendar-days" style="color:var(--accent)"></i> Calendar</h2>
+        <button class="btn btn-primary btn-sm" onclick="openModal('event-modal')"><i class="fa-solid fa-plus"></i> Add Event</button>
       </div>
-      <div class="metric-grid">
-        <div class="metric">
-          <div class="value" style="color:var(--red)">₹0</div>
-          <div class="label">Revenue This Month</div>
-        </div>
-        <div class="metric">
-          <div class="value" style="color:var(--orange)">0</div>
-          <div class="label">Paying Clients</div>
-        </div>
-        <div class="metric">
-          <div class="value" style="color:var(--text)">0</div>
-          <div class="label">Sales Calls Today</div>
-        </div>
-        <div class="metric">
-          <div class="value" style="color:var(--purple)">0</div>
-          <div class="label">Warm Leads</div>
-        </div>
-      </div>
-      <div style="margin-top:12px;padding:10px;background:rgba(30,41,59,0.3);border-radius:10px;text-align:center;font-size:0.8rem">
-        <span style="color:var(--accent);font-weight:600">₹8,000</span> — <span style="color:var(--text2)">Pricing Floor — NEVER Free Work</span>
-      </div>
-    </div>
-
-    <!-- PRODUCTS -->
-    <div class="card">
-      <div class="card-header">
-        <h2><i class="fa-solid fa-cubes"></i> Products Ready</h2>
-        <span class="badge badge-live">5 Products</span>
-      </div>
-      <div class="list-item">
-        <span><i class="fa-solid fa-landmark" style="color:var(--text2);width:18px"></i> JanSunwai</span>
-        <span class="tag tag-orange">Inactive</span>
-      </div>
-      <div class="list-item">
-        <span><i class="fa-solid fa-scissors" style="color:var(--text2);width:18px"></i> SalonPro Manager</span>
-        <span class="tag tag-purple">3 Branches</span>
-      </div>
-      <div class="list-item">
-        <span><i class="fa-solid fa-robot" style="color:var(--text2);width:18px"></i> Priya AI Voice Agent</span>
-        <span class="tag tag-green">Ready</span>
-      </div>
-      <div class="list-item">
-        <span><i class="fa-solid fa-globe" style="color:var(--text2);width:18px"></i> Website Services</span>
-        <span class="tag tag-green">Ready</span>
-      </div>
-      <div class="list-item">
-        <span><i class="fa-solid fa-building-columns" style="color:var(--text2);width:18px"></i> Collectorate AI</span>
-        <span class="tag tag-orange">Concept</span>
-      </div>
-    </div>
-
-    <!-- PRICING -->
-    <div class="card">
-      <div class="card-header">
-        <h2><i class="fa-solid fa-tags"></i> Pricing</h2>
-        <span class="badge badge-live">Active</span>
-      </div>
-      <div class="list-item">
-        <span>Websites</span>
-        <span style="color:var(--accent);font-weight:700">₹8k–12k</span>
-      </div>
-      <div class="list-item">
-        <span>Restaurant Package</span>
-        <span style="color:var(--accent);font-weight:700">₹12k + ₹2k/mo</span>
-      </div>
-      <div class="list-item">
-        <span>Makeup / Training</span>
-        <span style="color:var(--accent);font-weight:700">₹18k + ₹3k/mo</span>
-      </div>
-      <div class="list-item">
-        <span>Priya AI Clinic</span>
-        <span style="color:var(--accent);font-weight:700">₹15k + ₹5k/mo</span>
-      </div>
-      <div style="margin-top:10px;padding:10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;text-align:center;font-size:0.75rem;color:var(--red);font-weight:600">
-        🚫 NEVER do free work again!
-      </div>
-    </div>
-
-    <!-- HEALTH TRACKER -->
-    <div class="card">
-      <div class="card-header">
-        <h2><i class="fa-solid fa-heart-pulse" style="color:var(--red)"></i> Health Tracker</h2>
-        <span class="badge badge-live">Active</span>
-      </div>
-      <div class="health-stats">
-        <div class="health-item">
-          <div class="val" style="color:var(--orange)">73</div>
-          <div class="lbl">Weight (kg)</div>
-        </div>
-        <div class="health-item">
-          <div class="val" style="color:var(--accent)">65</div>
-          <div class="lbl">Target</div>
-        </div>
-        <div class="health-item">
-          <div class="val" style="color:var(--text)">26.2</div>
-          <div class="lbl">BMI</div>
-        </div>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text2);margin-top:8px">
-        <span>Weight Loss Progress</span>
-        <span>73 → 65 <span style="color:var(--accent)">(62%)</span></span>
-      </div>
-      <div class="progress-bar-outer">
-        <div class="fill fill-orange" style="width:62%"></div>
-      </div>
-      <div style="margin-top:12px">
-        <div class="list-item" style="padding:6px 0">
-          <span><i class="fa-solid fa-flask" style="color:var(--red);width:18px"></i> Blood Tests</span>
-          <span class="tag tag-red">URGENT</span>
-        </div>
-        <div class="list-item" style="padding:6px 0">
-          <span><i class="fa-solid fa-heart" style="color:var(--red);width:18px"></i> ECG</span>
-          <span class="tag tag-red">URGENT</span>
-        </div>
-        <div class="list-item" style="padding:6px 0">
-          <span><i class="fa-solid fa-pills" style="color:var(--orange);width:18px"></i> Supplements Today</span>
-          <span class="tag tag-orange">Pending</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- HABITS -->
-    <div class="card">
-      <div class="card-header">
-        <h2><i class="fa-regular fa-circle-check"></i> Daily Habits</h2>
-        <span class="badge badge-live" id="habits-count">0/6 Today</span>
-      </div>
-      <div class="habit-row">
-        <div class="habit-check pending"><i class="fa-solid fa-check"></i></div>
-        <span>Wake up at 6 AM</span>
-      </div>
-      <div class="habit-row">
-        <div class="habit-check pending"><i class="fa-solid fa-check"></i></div>
-        <span>Reading 30 min</span>
-      </div>
-      <div class="habit-row">
-        <div class="habit-check pending"><i class="fa-solid fa-check"></i></div>
-        <span>Journaling</span>
-      </div>
-      <div class="habit-row">
-        <div class="habit-check pending"><i class="fa-solid fa-check"></i></div>
-        <span>Social Media < 30 min</span>
-      </div>
-      <div class="habit-row">
-        <div class="habit-check pending"><i class="fa-solid fa-check"></i></div>
-        <span>NeuroSetu 1hr evening</span>
-      </div>
-      <div class="habit-row">
-        <div class="habit-check pending"><i class="fa-solid fa-check"></i></div>
-        <span>3 Sales Calls</span>
-      </div>
-    </div>
-
-    <!-- READING LIST -->
-    <div class="card">
-      <div class="card-header">
-        <h2><i class="fa-solid fa-book-open"></i> Reading List</h2>
-        <span class="badge badge-live">6 Books</span>
-      </div>
-      <div class="list-item">
-        <span>1. No More Mr. Nice Guy</span>
-        <span class="tag tag-purple">Primary</span>
-      </div>
-      <div class="list-item">
-        <span>2. StoryBrand (SB7)</span>
-        <span class="tag tag-green">Adopted</span>
-      </div>
-      <div class="list-item">
-        <span>3. Influence</span>
-        <span class="tag tag-orange">Next</span>
-      </div>
-      <div class="list-item">
-        <span>4. Atomic Habits</span>
-        <span style="color:var(--text3)">Upcoming</span>
-      </div>
-      <div class="list-item">
-        <span>5. The Model</span>
-        <span style="color:var(--text3)">Upcoming</span>
-      </div>
-      <div class="list-item">
-        <span>6. Atomic Attraction</span>
-        <span style="color:var(--text3)">Upcoming</span>
-      </div>
-    </div>
-
-    <!-- SYSTEM STATUS -->
-    <div class="card">
-      <div class="card-header">
-        <h2><i class="fa-solid fa-server"></i> System Status</h2>
-        <span class="badge badge-live">All Systems Go</span>
-      </div>
-      <div class="github-profile-mini">
-        <div class="github-avatar">🧠</div>
-        <div class="github-info">
-          <div class="gh-name">NeuroSetu VPS</div>
-          <div class="gh-stats">
-            <span><i class="fa-solid fa-globe"></i> 168.231.120.202</span>
-            <span><i class="fa-brands fa-ubuntu"></i> Linux</span>
+      <div class="grid-2">
+        <div class="card">
+          <div class="calendar-nav">
+            <button onclick="calMove(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+            <span class="month-label" id="cal-month-label">June 2026</span>
+            <button onclick="calMove(1)"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+          <div class="calendar-grid" id="cal-grid"></div>
+          <div class="flex gap-8 flex-wrap" style="font-size:0.65rem;color:var(--text2)">
+            <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-right:4px"></span> Has events</span>
+            <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--purple);margin-right:4px"></span> Today</span>
           </div>
         </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-        <div class="sys-chip">
-          <span class="sys-key">Coolify</span>
-          <span class="sys-val">:8000</span>
+        <div class="card">
+          <div class="card-header"><h3>📌 Events</h3><span class="badge badge-live" id="cal-event-count">0</span></div>
+          <div id="cal-events"><div class="loading"><div class="spinner"></div></div></div>
         </div>
-        <div class="sys-chip">
-          <span class="sys-key">n8n</span>
-          <span class="sys-val">n8n.srv...hstgr.cloud</span>
-        </div>
-        <div class="sys-chip">
-          <span class="sys-key">Hermes GW</span>
-          <span class="sys-val" style="color:var(--accent)"><i class="fa-solid fa-circle" style="font-size:0.4rem;vertical-align:middle"></i> Running</span>
-        </div>
-        <div class="sys-chip">
-          <span class="sys-key">WhatsApp</span>
-          <span class="sys-val" style="color:var(--accent)"><i class="fa-solid fa-circle" style="font-size:0.4rem;vertical-align:middle"></i> Connected</span>
-        </div>
-        <div class="sys-chip">
-          <span class="sys-key">Node.js</span>
-          <span class="sys-val">v22.22.3</span>
-        </div>
-        <div class="sys-chip">
-          <span class="sys-key">Dashboard</span>
-          <span class="sys-val" style="color:var(--accent)">:9000</span>
-        </div>
-      </div>
-      <style>
-        .sys-chip {
-          background: rgba(30,41,59,0.3);
-          border-radius: 8px;
-          padding: 8px 10px;
-          font-size: 0.72rem;
-          display: flex;
-          justify-content: space-between;
-          gap: 4px;
-        }
-        .sys-key { color: var(--text2); }
-        .sys-val { font-weight: 500; }
-      </style>
-    </div>
-
-    <!-- ACCOUNTABILITY -->
-    <div class="card accountability-card">
-      <div class="card-header">
-        <h2><i class="fa-solid fa-fire" style="color:var(--orange)"></i> Accountability</h2>
-        <span class="badge tag-orange">Pattern Alert</span>
-      </div>
-      <div class="accountability-alert">
-        <div class="alert-icon">⚠️</div>
-        <div class="alert-body">
-          <p style="color:var(--orange);font-weight:600;margin-bottom:6px">PATTERN DETECTED</p>
-          <p>Mrinmoy pivots to new technical projects as <strong style="color:var(--red)">AVOIDANCE</strong> when client outreach feels uncomfortable.</p>
-        </div>
-      </div>
-      <div class="mantra-box">
-        <div class="mantra">"How does this get you a paying client?"</div>
-        <div class="attribution">— Hermes, every time you build instead of sell</div>
       </div>
     </div>
 
-    <!-- QUICK ACTIONS -->
-    <div class="card" style="grid-column:1/-1">
-      <div class="card-header">
-        <h2><i class="fa-solid fa-bolt"></i> Quick Actions</h2>
-        <span class="badge badge-live">Connected</span>
+    <!--========== SALES ==========-->
+    <div class="page" id="page-sales">
+      <div class="flex items-center justify-between mb-12 flex-wrap gap-8">
+        <h2 style="font-size:1.2rem;font-weight:700"><i class="fa-solid fa-chart-line" style="color:var(--accent)"></i> Sales Pipeline</h2>
+        <div class="flex gap-8 flex-wrap">
+          <button class="btn btn-primary btn-sm" onclick="openModal('lead-modal')"><i class="fa-solid fa-plus"></i> Add Lead</button>
+          <button class="btn btn-secondary btn-sm" onclick="openModal('call-modal')"><i class="fa-solid fa-phone"></i> Log Call</button>
+        </div>
       </div>
-      <div class="actions-bar">
-        <a href="https://wa.me/918918213286?text=Good%20morning%20Mrinmoy%20Briefing%20de" target="_blank" class="btn btn-primary"><i class="fa-regular fa-sun"></i> Morning Briefing</a>
-        <a href="https://wa.me/918918213286?text=Evening%20review%20karo" target="_blank" class="btn btn-secondary"><i class="fa-regular fa-moon"></i> Evening Review</a>
-        <a href="https://wa.me/918918213286?text=Mujhe%20accountability%20chahiye" target="_blank" class="btn btn-secondary"><i class="fa-solid fa-fire"></i> Accountability</a>
-        <a href="https://wa.me/918918213286?text=Aaj%20ka%20plan%20kya%20hai" target="_blank" class="btn btn-secondary"><i class="fa-regular fa-calendar"></i> Today's Plan</a>
-        <a href="http://168.231.120.202:8000" target="_blank" class="btn btn-secondary"><i class="fa-solid fa-gear"></i> Coolify</a>
-        <button class="btn btn-secondary" onclick="location.reload()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+      <div class="grid-4 mb-12">
+        <div class="stat-card green"><div class="stat-val" id="sales-warm">0</div><div class="stat-lbl">Warm</div></div>
+        <div class="stat-card orange"><div class="stat-val" id="sales-hot">0</div><div class="stat-lbl">Hot</div></div>
+        <div class="stat-card purple"><div class="stat-val" id="sales-converted">0</div><div class="stat-lbl">Converted</div></div>
+        <div class="stat-card red"><div class="stat-val" id="sales-cold">0</div><div class="stat-lbl">Cold</div></div>
       </div>
-      <div style="margin-top:14px;padding:12px;background:rgba(30,41,59,0.3);border-radius:12px;text-align:center;font-size:0.82rem">
-        <span style="color:var(--text2)">📱 WhatsApp pe mujhe instruction de — Main yahan VPS pe <strong style="color:var(--accent)">24/7</strong> active hoon!</span>
+      <div class="card">
+        <div class="card-header"><h3>📋 All Leads</h3><span class="badge badge-live" id="lead-count">0</span></div>
+        <div id="leads-table"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+      <div class="card mt-12">
+        <div class="card-header"><h3>📞 Call Log</h3><span class="badge badge-live" id="call-log-count">0</span></div>
+        <div id="call-log"><div class="loading"><div class="spinner"></div></div></div>
       </div>
     </div>
 
+    <!--========== HEALTH ==========-->
+    <div class="page" id="page-health">
+      <div class="flex items-center justify-between mb-12 flex-wrap gap-8">
+        <h2 style="font-size:1.2rem;font-weight:700"><i class="fa-solid fa-heart-pulse" style="color:var(--red)"></i> Health Tracker</h2>
+        <button class="btn btn-primary btn-sm" onclick="openModal('health-modal')"><i class="fa-solid fa-plus"></i> Log Entry</button>
+      </div>
+      <div class="grid-4 mb-12">
+        <div class="stat-card orange"><div class="stat-val" id="h-weight">73</div><div class="stat-lbl">Current Weight</div></div>
+        <div class="stat-card green"><div class="stat-val">65</div><div class="stat-lbl">Target</div></div>
+        <div class="stat-card purple"><div class="stat-val" id="h-bmi">26.2</div><div class="stat-lbl">BMI</div></div>
+        <div class="stat-card blue"><div class="stat-val" id="h-logs">0</div><div class="stat-lbl">Total Logs</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><h3>📈 Weight Trend</h3></div>
+          <div class="chart-container"><canvas id="weight-chart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>📋 Recent Logs</h3></div>
+          <div id="health-logs"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!--========== HABITS ==========-->
+    <div class="page" id="page-habits">
+      <div class="flex items-center justify-between mb-12 flex-wrap gap-8">
+        <h2 style="font-size:1.2rem;font-weight:700"><i class="fa-regular fa-circle-check" style="color:var(--accent)"></i> Habit Tracker</h2>
+        <span class="badge badge-live" id="habits-streak-count">🔥 0 day streak</span>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><h3>✅ Today's Habits</h3></div>
+          <div id="habits-today"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>📊 This Week</h3></div>
+          <div id="habits-week"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!--========== FINANCE ==========-->
+    <div class="page" id="page-finance">
+      <div class="flex items-center justify-between mb-12 flex-wrap gap-8">
+        <h2 style="font-size:1.2rem;font-weight:700"><i class="fa-solid fa-coins" style="color:var(--orange)"></i> Finance</h2>
+        <div class="flex gap-8">
+          <button class="btn btn-primary btn-sm" onclick="openModal('expense-modal')"><i class="fa-solid fa-plus"></i> Add Expense</button>
+          <button class="btn btn-secondary btn-sm" onclick="openModal('revenue-modal')"><i class="fa-solid fa-money-bill"></i> Update Revenue</button>
+        </div>
+      </div>
+      <div class="grid-4 mb-12">
+        <div class="stat-card green"><div class="stat-val" id="fin-revenue">₹0</div><div class="stat-lbl">Monthly Revenue</div></div>
+        <div class="stat-card red"><div class="stat-val" id="fin-expenses">₹0</div><div class="stat-lbl">Monthly Expenses</div></div>
+        <div class="stat-card blue"><div class="stat-val" id="fin-profit">₹0</div><div class="stat-lbl">Net Profit</div></div>
+        <div class="stat-card orange"><div class="stat-val" id="fin-target">₹30k</div><div class="stat-lbl">Monthly Target</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><h3>📋 Pricing</h3><span class="badge badge-live">Floor ₹8k</span></div>
+          <table class="data-table">
+            <tr><th>Service</th><th>Price</th></tr>
+            <tr><td>Websites</td><td style="color:var(--accent);font-weight:600">₹8k–12k</td></tr>
+            <tr><td>Restaurant Package</td><td style="color:var(--accent);font-weight:600">₹12k + ₹2k/mo</td></tr>
+            <tr><td>Makeup / Training</td><td style="color:var(--accent);font-weight:600">₹18k + ₹3k/mo</td></tr>
+            <tr><td>Priya AI Clinic</td><td style="color:var(--accent);font-weight:600">₹15k + ₹5k/mo</td></tr>
+          </table>
+          <div class="mt-12" style="padding:10px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);border-radius:8px;text-align:center;font-size:0.75rem;color:var(--red);font-weight:600">🚫 NEVER do free work again!</div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>📋 Expense Log</h3><span class="badge badge-live" id="expense-count">0</span></div>
+          <div id="expense-list"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!--========== CLIENTS ==========-->
+    <div class="page" id="page-clients">
+      <div class="flex items-center justify-between mb-12 flex-wrap gap-8">
+        <h2 style="font-size:1.2rem;font-weight:700"><i class="fa-solid fa-users" style="color:var(--purple)"></i> Clients</h2>
+        <button class="btn btn-primary btn-sm" onclick="openModal('client-modal')"><i class="fa-solid fa-plus"></i> Add Client</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>📋 Client Directory</h3><span class="badge badge-live" id="client-count">0</span></div>
+        <div id="clients-table"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!--========== GITHUB ==========-->
+    <div class="page" id="page-github">
+      <div class="flex items-center justify-between mb-12 flex-wrap gap-8">
+        <h2 style="font-size:1.2rem;font-weight:700"><i class="fa-brands fa-github" style="color:var(--text)"></i> GitHub</h2>
+        <span class="badge badge-live" id="gh-badge-page">● LIVE</span>
+      </div>
+      <div class="grid-4 mb-12">
+        <div class="stat-card green"><div class="stat-val" id="gh-repos-page">--</div><div class="stat-lbl">Repos</div></div>
+        <div class="stat-card purple"><div class="stat-val" id="gh-langs-page">--</div><div class="stat-lbl">Languages</div></div>
+        <div class="stat-card blue"><div class="stat-val" id="gh-followers">0</div><div class="stat-lbl">Followers</div></div>
+        <div class="stat-card orange"><div class="stat-val" id="gh-activity">--</div><div class="stat-lbl">Last Active</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3><i class="fa-brands fa-github"></i> Repositories</h3></div>
+        <div id="github-repos"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+  </div><!-- end page-content -->
+</div><!-- end main -->
+
+<!--=== MODALS ===-->
+
+<!-- Event Modal -->
+<div class="modal-overlay" id="event-modal">
+  <div class="modal"><h3>📅 <span id="event-modal-title">Add Event</span></h3>
+    <input type="hidden" id="event-id">
+    <div class="form-group"><label>Title</label><input id="event-title" placeholder="Event name"></div>
+    <div class="form-group"><label>Description</label><textarea id="event-desc" rows="2"></textarea></div>
+    <div class="grid-2 gap-8">
+      <div class="form-group"><label>Date</label><input type="date" id="event-date"></div>
+      <div class="form-group"><label>Category</label>
+        <select id="event-cat"><option value="general">General</option><option value="meeting">Meeting</option><option value="call">Call</option><option value="task">Task</option><option value="health">Health</option><option value="sales">Sales</option></select></div>
+    </div>
+    <div class="grid-2 gap-8">
+      <div class="form-group"><label>Start Time</label><input type="time" id="event-time"></div>
+      <div class="form-group"><label>End Time</label><input type="time" id="event-end"></div>
+    </div>
+    <div class="form-actions"><button class="btn btn-secondary" onclick="closeModal('event-modal')">Cancel</button><button class="btn btn-primary" onclick="saveEvent()">Save</button></div>
   </div>
+</div>
 
-  <div class="footer">
-    🧠 NeuroSetu AI — Built by Mrinmoy
-    <div class="update-time" id="update-time">Loading...</div>
+<!-- Lead Modal -->
+<div class="modal-overlay" id="lead-modal">
+  <div class="modal"><h3>📈 Add Lead</h3>
+    <div class="form-group"><label>Name</label><input id="lead-name" placeholder="Lead name"></div>
+    <div class="form-group"><label>Business</label><input id="lead-business" placeholder="Business name"></div>
+    <div class="grid-2 gap-8">
+      <div class="form-group"><label>Phone</label><input id="lead-phone" placeholder="Phone"></div>
+      <div class="form-group"><label>Email</label><input type="email" id="lead-email" placeholder="Email"></div>
+    </div>
+    <div class="form-group"><label>Business Type</label><input id="lead-type" placeholder="e.g. Restaurant, Clinic"></div>
+    <div class="form-group">
+      <label>Status</label>
+      <select id="lead-status"><option value="warm">Warm</option><option value="hot">Hot</option><option value="cold">Cold</option></select>
+    </div>
+    <div class="form-group"><label>Notes</label><textarea id="lead-notes" rows="2"></textarea></div>
+    <div class="form-actions"><button class="btn btn-secondary" onclick="closeModal('lead-modal')">Cancel</button><button class="btn btn-primary" onclick="saveLead()">Save</button></div>
   </div>
+</div>
 
+<!-- Call Log Modal -->
+<div class="modal-overlay" id="call-modal">
+  <div class="modal"><h3>📞 Log Sales Call</h3>
+    <div class="form-group"><label>Date</label><input type="date" id="call-date"></div>
+    <div class="form-group"><label>Leads Called</label><input type="number" id="call-count" placeholder="Number of calls" value="1"></div>
+    <div class="form-group"><label>Outcome</label>
+      <select id="call-outcome"><option value="no_answer">No Answer</option><option value="interested">Interested</option><option value="not_interested">Not Interested</option><option value="followup">Follow-up Scheduled</option><option value="converted">Converted!</option></select>
+    </div>
+    <div class="form-group"><label>Notes</label><textarea id="call-notes" rows="2"></textarea></div>
+    <div class="form-actions"><button class="btn btn-secondary" onclick="closeModal('call-modal')">Cancel</button><button class="btn btn-primary" onclick="saveCall()">Save</button></div>
+  </div>
+</div>
+
+<!-- Health Modal -->
+<div class="modal-overlay" id="health-modal">
+  <div class="modal"><h3>❤️ Log Health Entry</h3>
+    <div class="form-group"><label>Date</label><input type="date" id="health-date"></div>
+    <div class="grid-2 gap-8">
+      <div class="form-group"><label>Weight (kg)</label><input type="number" step="0.1" id="health-weight" placeholder="73"></div>
+      <div class="form-group"><label>Supplements Taken</label>
+        <select id="health-supplements"><option value="true">Yes</option><option value="false">No</option></select>
+      </div>
+    </div>
+    <div class="form-group"><label>Exercise Done</label>
+      <select id="health-exercise"><option value="true">Yes</option><option value="false">No</option></select>
+    </div>
+    <div class="form-group"><label>Notes</label><textarea id="health-notes" rows="2"></textarea></div>
+    <div class="form-actions"><button class="btn btn-secondary" onclick="closeModal('health-modal')">Cancel</button><button class="btn btn-primary" onclick="saveHealth()">Save</button></div>
+  </div>
+</div>
+
+<!-- Plan Modal -->
+<div class="modal-overlay" id="plan-modal">
+  <div class="modal"><h3>📋 Add To-Do</h3>
+    <div class="form-group"><label>Task</label><input id="plan-text" placeholder="What do you need to do?"></div>
+    <div class="grid-2 gap-8">
+      <div class="form-group"><label>Date</label><input type="date" id="plan-date"></div>
+      <div class="form-group"><label>Priority</label>
+        <select id="plan-priority"><option value="1">🔴 High</option><option value="2">🟡 Medium</option><option value="3">🟢 Low</option></select></div>
+    </div>
+    <div class="form-actions"><button class="btn btn-secondary" onclick="closeModal('plan-modal')">Cancel</button><button class="btn btn-primary" onclick="savePlan()">Save</button></div>
+  </div>
+</div>
+
+<!-- Expense Modal -->
+<div class="modal-overlay" id="expense-modal">
+  <div class="modal"><h3>💰 Add Expense</h3>
+    <div class="form-group"><label>Amount (₹)</label><input type="number" step="0.01" id="expense-amount" placeholder="0"></div>
+    <div class="form-group"><label>Category</label>
+      <select id="expense-cat"><option value="hosting">Hosting</option><option value="tools">Tools/Software</option><option value="marketing">Marketing</option><option value="travel">Travel</option><option value="food">Food</option><option value="other">Other</option></select>
+    </div>
+    <div class="form-group"><label>Description</label><input id="expense-desc" placeholder="What was this for?"></div>
+    <div class="form-group"><label>Date</label><input type="date" id="expense-date"></div>
+    <div class="form-actions"><button class="btn btn-secondary" onclick="closeModal('expense-modal')">Cancel</button><button class="btn btn-primary" onclick="saveExpense()">Save</button></div>
+  </div>
+</div>
+
+<!-- Revenue Modal -->
+<div class="modal-overlay" id="revenue-modal">
+  <div class="modal"><h3>💰 Update Revenue</h3>
+    <div class="form-group"><label>Monthly Revenue (₹)</label><input type="number" id="revenue-amount" placeholder="0"></div>
+    <div class="form-group"><label>Paying Clients Count</label><input type="number" id="revenue-clients" placeholder="0"></div>
+    <div class="form-actions"><button class="btn btn-secondary" onclick="closeModal('revenue-modal')">Cancel</button><button class="btn btn-primary" onclick="saveRevenue()">Update</button></div>
+  </div>
+</div>
+
+<!-- Client Modal -->
+<div class="modal-overlay" id="client-modal">
+  <div class="modal"><h3>👥 Add Client</h3>
+    <div class="form-group"><label>Name</label><input id="client-name" placeholder="Client name"></div>
+    <div class="form-group"><label>Business Name</label><input id="client-business" placeholder="Business name"></div>
+    <div class="grid-2 gap-8">
+      <div class="form-group"><label>Phone</label><input id="client-phone" placeholder="Phone"></div>
+      <div class="form-group"><label>Email</label><input type="email" id="client-email" placeholder="Email"></div>
+    </div>
+    <div class="form-group"><label>Service Type</label><input id="client-service" placeholder="e.g. Website, AI Agent"></div>
+    <div class="form-group"><label>Status</label>
+      <select id="client-status"><option value="active">Active</option><option value="inactive">Inactive</option><option value="past">Past</option></select>
+    </div>
+    <div class="form-group"><label>Notes</label><textarea id="client-notes" rows="2"></textarea></div>
+    <div class="form-actions"><button class="btn btn-secondary" onclick="closeModal('client-modal')">Cancel</button><button class="btn btn-primary" onclick="saveClient()">Save</button></div>
+  </div>
 </div>
 
 <script>
+// ===== CONFIG =====
+let SB_CONFIG = {};
+let CAL_DATE = new Date();
+let supabaseUrl = '';
+const today = () => new Date().toISOString().split('T')[0];
+
+// ===== SIDEBAR =====
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open') }
+
+// ===== ROUTING =====
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const pg = document.getElementById('page-' + page);
+  if (pg) pg.classList.add('active');
+  const nav = document.querySelector(`.nav-item[data-page="${page}"]`);
+  if (nav) nav.classList.add('active');
+  // Update title
+  const titles = {overview:'📊 Overview',calendar:'📅 Calendar',sales:'📈 Sales Pipeline',health:'❤️ Health',habits:'✅ Habits',finance:'💰 Finance',clients:'👥 Clients',github:'💻 GitHub'};
+  document.querySelector('.page-title').innerHTML = `<span class="title-icon">${titles[page]?.split(' ')[0]||'📊'}</span> ${titles[page]?.split(' ').slice(1).join(' ')||'Overview'}`;
+  // Close sidebar on mobile
+  document.getElementById('sidebar').classList.remove('open');
+  // Load page-specific data
+  if (page === 'calendar') renderCalendar();
+  if (page === 'sales') { loadLeads(); loadCallLog(); }
+  if (page === 'health') { loadHealthLogs(); renderWeightChart(); }
+  if (page === 'habits') { loadHabitsToday(); loadHabitsWeek(); }
+  if (page === 'finance') { loadExpenses(); }
+  if (page === 'clients') { loadClients(); }
+  if (page === 'github') { loadGitHubPage(); }
+}
+
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', e => {
+    e.preventDefault();
+    navigate(item.dataset.page);
+  });
+});
+
+// Hash routing
+window.addEventListener('hashchange', () => {
+  const page = location.hash.replace('#','') || 'overview';
+  navigate(page);
+});
+
+// ===== MODALS =====
+function openModal(id) { 
+  document.getElementById(id).classList.add('active');
+  // Set default date
+  const dateInput = document.querySelector('#' + id + ' input[type="date"]');
+  if (dateInput && !dateInput.value) dateInput.value = today();
+}
+function closeModal(id) { document.getElementById(id).classList.remove('active') }
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active') });
+});
+
+// ===== SUPABASE HELPERS =====
+async function sbFetch(endpoint, opts = {}) {
+  const url = supabaseUrl + '/rest/v1/' + endpoint;
+  const headers = { 'apikey': SB_CONFIG.anon_key, 'Content-Type': 'application/json' };
+  const resp = await fetch(url, { headers, ...opts });
+  if (!resp.ok && resp.status !== 204) throw new Error(await resp.text());
+  if (opts.method === 'DELETE' || resp.status === 204) return null;
+  return resp.json();
+}
+
+async function sbPost(table, data) {
+  return sbFetch(table, { method: 'POST', body: JSON.stringify(data) });
+}
+
+async function sbPatch(table, data) {
+  return sbFetch(table, { method: 'PATCH', body: JSON.stringify(data) });
+}
+
+async function sbDelete(table) {
+  return sbFetch(table, { method: 'DELETE' });
+}
+
+async function initSupabase() {
+  try {
+    const resp = await fetch('/api/supabase-config');
+    SB_CONFIG = await resp.json();
+    supabaseUrl = 'https://' + SB_CONFIG.ref + '.supabase.co';
+  } catch (e) {
+    console.error('Supabase init failed:', e);
+  }
+}
+
 // ===== LIVE CLOCK =====
-function updateTime() {
+function updateClock() {
   const now = new Date();
   const ist = now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour12: false });
-  const [datePart, timePart] = ist.split(', ');
-  document.getElementById('live-time').textContent = timePart;
-  document.getElementById('update-time').textContent = '🔄 Last updated: ' + ist + ' IST';
-
-  // Greeting
+  document.getElementById('live-time').textContent = ist.split(', ')[1];
   const hour = now.getHours();
-  const greetingEl = document.getElementById('greeting-text');
-  if (hour < 12) greetingEl.textContent = 'Good Morning, Mrinmoy 🌅';
-  else if (hour < 17) greetingEl.textContent = 'Good Afternoon, Mrinmoy ☀️';
-  else if (hour < 21) greetingEl.textContent = 'Good Evening, Mrinmoy 🌆';
-  else greetingEl.textContent = 'Late Night Hustle, Mrinmoy 🌙';
-
-  // Date
+  const g = document.getElementById('greeting-text');
+  if (hour < 12) g.textContent = 'Good Morning, Mrinmoy 🌅';
+  else if (hour < 17) g.textContent = 'Good Afternoon, Mrinmoy ☀️';
+  else if (hour < 21) g.textContent = 'Good Evening, Mrinmoy 🌆';
+  else g.textContent = 'Late Night Hustle, Mrinmoy 🌙';
   document.getElementById('date-display').textContent = now.toLocaleDateString('en-IN', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Kolkata'
   });
 }
-updateTime();
-setInterval(updateTime, 1000);
+setInterval(updateClock, 1000);
+updateClock();
 
-// ===== GITHUB LIVE DATA =====
-async function loadGitHub() {
-  const section = document.getElementById('github-section');
+// ===== OVERVIEW =====
+async function loadOverview() {
+  try {
+    const [meta, calls, habits, events, health] = await Promise.all([
+      sbFetch('dashboard_meta?select=key,value'),
+      sbFetch(`sales_calls?select=count,date&order=date.desc&limit=1`),
+      sbFetch(`habits?select=habit_name,completed,date&date=eq.${today()}`),
+      sbFetch(`events?select=id,title,event_time,category,completed&event_date=eq.${today()}&order=event_time`),
+      sbFetch(`health_logs?select=weight_kg,supplements_taken,exercise_done&order=date.desc&limit=1`)
+    ]);
 
+    meta.forEach(m => {
+      if (m.key === 'revenue_month') document.getElementById('ov-revenue').textContent = '₹' + (m.value || 0);
+      if (m.key === 'paying_clients') document.getElementById('ov-clients').textContent = m.value || 0;
+    });
+
+    if (calls.length) document.getElementById('ov-calls').textContent = calls[0].count || 0;
+
+    // Leads count
+    try {
+      const leads = await sbFetch('leads?select=id&status=eq.warm');
+      document.getElementById('ov-leads').textContent = leads.length;
+    } catch(e) {}
+
+    // Today's events
+    const evDiv = document.getElementById('today-events');
+    document.getElementById('today-event-count').textContent = events.length;
+    if (events.length === 0) {
+      evDiv.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:0.82rem">🎉 No events today</div>';
+    } else {
+      evDiv.innerHTML = events.map(e => `
+        <div class="event-item" onclick="editEvent(${e.id})">
+          <span class="event-dot ${e.category}"></span>
+          <div class="event-info"><div class="ev-title">${e.title}</div>
+          <div class="ev-meta">${e.event_time || 'All day'} · ${e.category}</div></div>
+          <div class="event-check ${e.completed ? 'done' : ''}" onclick="event.stopPropagation();toggleEvent(${e.id}, ${!e.completed})">
+            ${e.completed ? '<i class="fa-solid fa-check"></i>' : ''}</div>
+        </div>
+      `).join('');
+    }
+
+    // Today's plans
+    const plans = await sbFetch(`daily_plans?select=id,plan_text,priority,completed&plan_date=eq.${today()}&order=priority,created_at`);
+    const plDiv = document.getElementById('today-plans');
+    if (plans.length === 0) {
+      plDiv.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:0.82rem">📝 No plans for today</div>';
+    } else {
+      plDiv.innerHTML = plans.map(p => `
+        <div class="event-item">
+          <div class="event-check ${p.completed ? 'done' : ''}" onclick="togglePlan(${p.id}, ${!p.completed})">${p.completed ? '<i class="fa-solid fa-check"></i>' : ''}</div>
+          <div class="event-info"><div class="ev-title" style="${p.completed ? 'text-decoration:line-through;opacity:0.5' : ''}">${p.plan_text}</div>
+          <div class="ev-meta">${['🔴 High','🟡 Medium','🟢 Low'][p.priority - 1] || '🟡 Medium'}</div></div>
+          <button class="btn btn-sm btn-danger" onclick="deletePlan(${p.id})"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      `).join('');
+    }
+
+    // Habits today
+    const hDiv = document.getElementById('ov-habits-list');
+    if (habits.length) {
+      const done = habits.filter(h => h.completed).length;
+      document.getElementById('ov-habits-count').textContent = done + '/' + habits.length;
+      hDiv.innerHTML = habits.map(h => `
+        <div class="event-item">
+          <div class="event-check ${h.completed ? 'done' : ''}">${h.completed ? '<i class="fa-solid fa-check"></i>' : ''}</div>
+          <div class="event-info"><div class="ev-title" style="${h.completed ? 'text-decoration:line-through;opacity:0.5' : ''}">${h.habit_name}</div></div>
+        </div>
+      `).join('');
+    } else {
+      document.getElementById('ov-habits-count').textContent = '0/0';
+      hDiv.innerHTML = '<div style="padding:14px;text-align:center;color:var(--text2);font-size:0.8rem">No habits logged today</div>';
+    }
+
+    // Health snapshot
+    const healthDiv = document.getElementById('ov-health');
+    if (health.length) {
+      const h = health[0];
+      healthDiv.innerHTML = `
+        <div class="stat-card orange"><div class="stat-val">${h.weight_kg || '--'} <span style="font-size:0.7rem">kg</span></div><div class="stat-lbl">Latest Weight</div></div>
+        <div class="flex gap-8 mt-12 flex-wrap" style="justify-content:center">
+          <span class="tag ${h.supplements_taken ? 'tag-green' : 'tag-orange'}">💊 Supplements: ${h.supplements_taken ? '✓' : '✗'}</span>
+          <span class="tag ${h.exercise_done ? 'tag-green' : 'tag-orange'}">🏃 Exercise: ${h.exercise_done ? '✓' : '✗'}</span>
+        </div>`;
+    } else {
+      healthDiv.innerHTML = '<div style="padding:14px;text-align:center;color:var(--text2);font-size:0.8rem">No health data yet</div>';
+    }
+
+  } catch(e) {
+    console.error('Overview load error:', e);
+  }
+}
+
+// ===== CALENDAR =====
+let calEvents = [];
+
+async function loadCalendarEvents() {
+  try {
+    const year = CAL_DATE.getFullYear();
+    const month = String(CAL_DATE.getMonth() + 1).padStart(2, '0');
+    const start = `${year}-${month}-01`;
+    const endDate = new Date(year, CAL_DATE.getMonth() + 1, 0).getDate();
+    const end = `${year}-${month}-${String(endDate).padStart(2, '0')}`;
+    calEvents = await sbFetch(`events?select=id,title,event_date,category,completed&event_date=gte.${start}&event_date=lte.${end}&order=event_date`);
+    renderCalendar();
+    loadSelectedEvents();
+  } catch(e) { console.error(e) }
+}
+
+function renderCalendar() {
+  const year = CAL_DATE.getFullYear();
+  const month = CAL_DATE.getMonth();
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '<div class="day-header">Sun</div><div class="day-header">Mon</div><div class="day-header">Tue</div><div class="day-header">Wed</div><div class="day-header">Thu</div><div class="day-header">Fri</div><div class="day-header">Sat</div>';
+  document.getElementById('cal-month-label').textContent = CAL_DATE.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const todayStr = today();
+
+  // Previous month days
+  const prevMonthDays = new Date(year, month, 0).getDate();
+  for (let i = firstDay - 1; i >= 0; i--) {
+    grid.innerHTML += `<div class="day-cell other-month">${prevMonthDays - i}</div>`;
+  }
+
+  // Current month days
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = dateStr === todayStr;
+    const evCount = calEvents.filter(e => e.event_date === dateStr).length;
+    grid.innerHTML += `<div class="day-cell ${isToday ? 'today' : ''} ${evCount > 0 ? 'has-events' : ''}" onclick="selectDate('${dateStr}')">
+      ${d}${evCount > 0 ? `<span class="event-count">${evCount}</span>` : ''}</div>`;
+  }
+
+  // Next month days
+  const totalCells = firstDay + daysInMonth;
+  const remaining = 42 - totalCells;
+  for (let d = 1; d <= remaining; d++) {
+    grid.innerHTML += `<div class="day-cell other-month">${d}</div>`;
+  }
+
+  loadSelectedEvents();
+}
+
+function calMove(dir) {
+  CAL_DATE.setMonth(CAL_DATE.getMonth() + dir);
+  loadCalendarEvents();
+}
+
+let selectedDate = today();
+
+function selectDate(dateStr) {
+  selectedDate = dateStr;
+  loadSelectedEvents();
+}
+
+async function loadSelectedEvents() {
+  try {
+    const events = await sbFetch(`events?select=id,title,description,event_time,end_time,category,completed&event_date=eq.${selectedDate}&order=event_time`);
+    document.getElementById('cal-event-count').textContent = events.length;
+    const div = document.getElementById('cal-events');
+    if (events.length === 0) {
+      div.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text2)">No events for ${selectedDate}</div>`;
+    } else {
+      div.innerHTML = events.map(e => `
+        <div class="event-item" onclick="editEvent(${e.id})">
+          <span class="event-dot ${e.category}"></span>
+          <div class="event-info">
+            <div class="ev-title" style="${e.completed ? 'text-decoration:line-through;opacity:0.5':''}">${e.title}</div>
+            <div class="ev-meta">${e.event_time || 'All day'} · ${e.category}${e.description ? ' · ' + e.description : ''}</div>
+          </div>
+          <div class="event-check ${e.completed ? 'done' : ''}" onclick="event.stopPropagation();toggleEvent(${e.id}, ${!e.completed})">
+            ${e.completed ? '<i class="fa-solid fa-check"></i>' : ''}</div>
+          <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();deleteEvent(${e.id})"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      `).join('');
+    }
+  } catch(e) { console.error(e) }
+}
+
+async function saveEvent() {
+  const id = document.getElementById('event-id').value;
+  const data = {
+    title: document.getElementById('event-title').value,
+    description: document.getElementById('event-desc').value,
+    event_date: document.getElementById('event-date').value,
+    event_time: document.getElementById('event-time').value || null,
+    end_time: document.getElementById('event-end').value || null,
+    category: document.getElementById('event-cat').value
+  };
+  if (!data.title) return alert('Title is required');
+  try {
+    if (id) {
+      await sbPatch(`events?id=eq.${id}`, data);
+    } else {
+      await sbPost('events', data);
+    }
+    closeModal('event-modal');
+    loadCalendarEvents();
+    loadOverview();
+  } catch(e) { alert('Error saving: ' + e.message) }
+}
+
+async function editEvent(id) {
+  try {
+    const events = await sbFetch(`events?select=*&id=eq.${id}`);
+    if (!events.length) return;
+    const e = events[0];
+    document.getElementById('event-id').value = e.id;
+    document.getElementById('event-title').value = e.title;
+    document.getElementById('event-desc').value = e.description || '';
+    document.getElementById('event-date').value = e.event_date;
+    document.getElementById('event-time').value = e.event_time || '';
+    document.getElementById('event-end').value = e.end_time || '';
+    document.getElementById('event-cat').value = e.category;
+    document.getElementById('event-modal-title').textContent = 'Edit Event';
+    openModal('event-modal');
+  } catch(e) { console.error(e) }
+}
+
+async function toggleEvent(id, completed) {
+  try {
+    await sbPatch(`events?id=eq.${id}`, { completed });
+    loadCalendarEvents();
+    loadOverview();
+  } catch(e) { console.error(e) }
+}
+
+async function deleteEvent(id) {
+  if (!confirm('Delete this event?')) return;
+  try {
+    await sbDelete(`events?id=eq.${id}`);
+    loadCalendarEvents();
+    loadOverview();
+  } catch(e) { console.error(e) }
+}
+
+// ===== PLANS =====
+async function savePlan() {
+  const data = {
+    plan_text: document.getElementById('plan-text').value,
+    plan_date: document.getElementById('plan-date').value,
+    priority: parseInt(document.getElementById('plan-priority').value)
+  };
+  if (!data.plan_text) return alert('Task is required');
+  try {
+    await sbPost('daily_plans', data);
+    closeModal('plan-modal');
+    document.getElementById('plan-text').value = '';
+    loadOverview();
+  } catch(e) { alert('Error: ' + e.message) }
+}
+
+async function togglePlan(id, completed) {
+  try { await sbPatch(`daily_plans?id=eq.${id}`, { completed }); loadOverview(); }
+  catch(e) { console.error(e) }
+}
+
+async function deletePlan(id) {
+  if (!confirm('Delete this task?')) return;
+  try { await sbDelete(`daily_plans?id=eq.${id}`); loadOverview(); }
+  catch(e) { console.error(e) }
+}
+
+// ===== LEADS =====
+async function loadLeads() {
+  try {
+    const leads = await sbFetch('leads?select=*&order=created_at.desc');
+    document.getElementById('lead-count').textContent = leads.length;
+    document.getElementById('sales-warm').textContent = leads.filter(l => l.status === 'warm').length;
+    document.getElementById('sales-hot').textContent = leads.filter(l => l.status === 'hot').length;
+    document.getElementById('sales-converted').textContent = leads.filter(l => l.status === 'converted' || l.status === 'converted').length;
+    document.getElementById('sales-cold').textContent = leads.filter(l => l.status === 'cold').length;
+
+    const div = document.getElementById('leads-table');
+    if (!leads.length) {
+      div.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2)">No leads yet. Add your first lead!</div>';
+      return;
+    }
+    div.innerHTML = `<table class="data-table">
+      <tr><th>Name</th><th>Business</th><th>Phone</th><th>Status</th><th>Action</th></tr>
+      ${leads.map(l => `<tr>
+        <td style="font-weight:500">${l.name}</td>
+        <td style="color:var(--text2)">${l.business_name || '—'}</td>
+        <td style="color:var(--text2)">${l.phone || '—'}</td>
+        <td><span class="tag ${l.status === 'hot' ? 'tag-orange' : l.status === 'warm' ? 'tag-green' : l.status === 'converted' ? 'tag-purple' : 'tag-gray'}">${l.status}</span></td>
+        <td><button class="btn btn-sm btn-danger" onclick="deleteLead(${l.id})"><i class="fa-solid fa-trash"></i></button></td>
+      </tr>`).join('')}
+    </table>`;
+  } catch(e) { console.error(e) }
+}
+
+async function saveLead() {
+  const data = {
+    name: document.getElementById('lead-name').value,
+    business_name: document.getElementById('lead-business').value,
+    phone: document.getElementById('lead-phone').value,
+    email: document.getElementById('lead-email').value,
+    business_type: document.getElementById('lead-type').value,
+    status: document.getElementById('lead-status').value,
+    notes: document.getElementById('lead-notes').value
+  };
+  if (!data.name) return alert('Name is required');
+  try {
+    await sbPost('leads', data);
+    closeModal('lead-modal');
+    document.querySelectorAll('#lead-modal input, #lead-modal textarea').forEach(i => i.value = '');
+    loadLeads();
+    loadOverview();
+  } catch(e) { alert('Error: ' + e.message) }
+}
+
+async function deleteLead(id) {
+  if (!confirm('Delete this lead?')) return;
+  try { await sbDelete(`leads?id=eq.${id}`); loadLeads(); loadOverview(); }
+  catch(e) { console.error(e) }
+}
+
+// ===== CALL LOG =====
+async function loadCallLog() {
+  try {
+    const calls = await sbFetch('sales_calls?select=*&order=date.desc&limit=20');
+    document.getElementById('call-log-count').textContent = calls.length;
+    const div = document.getElementById('call-log');
+    if (!calls.length) {
+      div.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2)">No calls logged yet</div>';
+      return;
+    }
+    div.innerHTML = `<table class="data-table">
+      <tr><th>Date</th><th>Calls</th><th>Outcome</th><th>Notes</th></tr>
+      ${calls.map(c => `<tr>
+        <td style="color:var(--text2)">${c.date}</td>
+        <td style="font-weight:600">${c.count}</td>
+        <td><span class="tag ${c.outcome === 'converted' ? 'tag-green' : c.outcome === 'interested' ? 'tag-purple' : c.outcome === 'followup' ? 'tag-orange' : 'tag-gray'}">${c.outcome || '—'}</span></td>
+        <td style="color:var(--text2);font-size:0.72rem">${c.notes || '—'}</td>
+      </tr>`).join('')}
+    </table>`;
+  } catch(e) { console.error(e) }
+}
+
+async function saveCall() {
+  const data = {
+    date: document.getElementById('call-date').value,
+    count: parseInt(document.getElementById('call-count').value) || 1,
+    outcome: document.getElementById('call-outcome').value,
+    notes: document.getElementById('call-notes').value
+  };
+  try {
+    await sbPost('sales_calls', data);
+    closeModal('call-modal');
+    document.getElementById('call-notes').value = '';
+    loadCallLog();
+    loadOverview();
+  } catch(e) { alert('Error: ' + e.message) }
+}
+
+// ===== HEALTH =====
+async function loadHealthLogs() {
+  try {
+    const logs = await sbFetch('health_logs?select=*&order=date.desc&limit=20');
+    document.getElementById('h-logs').textContent = logs.length;
+    if (logs.length) {
+      document.getElementById('h-weight').textContent = logs[0].weight_kg || '73';
+      const w = parseFloat(logs[0].weight_kg || 73);
+      const h = 1.67;
+      document.getElementById('h-bmi').textContent = (w / (h * h)).toFixed(1);
+    }
+    const div = document.getElementById('health-logs');
+    if (!logs.length) {
+      div.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2)">No health logs yet</div>';
+      return;
+    }
+    div.innerHTML = `<table class="data-table">
+      <tr><th>Date</th><th>Weight</th><th>💊</th><th>🏃</th><th>Notes</th></tr>
+      ${logs.map(l => `<tr>
+        <td style="color:var(--text2)">${l.date}</td>
+        <td style="font-weight:600">${l.weight_kg || '—'} kg</td>
+        <td>${l.supplements_taken ? '✅' : '❌'}</td>
+        <td>${l.exercise_done ? '✅' : '❌'}</td>
+        <td style="color:var(--text2);font-size:0.72rem">${l.notes || '—'}</td>
+      </tr>`).join('')}
+    </table>`;
+  } catch(e) { console.error(e) }
+}
+
+async function saveHealth() {
+  const data = {
+    date: document.getElementById('health-date').value,
+    weight_kg: parseFloat(document.getElementById('health-weight').value) || null,
+    supplements_taken: document.getElementById('health-supplements').value === 'true',
+    exercise_done: document.getElementById('health-exercise').value === 'true',
+    notes: document.getElementById('health-notes').value
+  };
+  try {
+    await sbPost('health_logs', data);
+    closeModal('health-modal');
+    document.getElementById('health-weight').value = '';
+    document.getElementById('health-notes').value = '';
+    loadHealthLogs();
+    loadOverview();
+    renderWeightChart();
+  } catch(e) { alert('Error: ' + e.message) }
+}
+
+let weightChart = null;
+
+async function renderWeightChart() {
+  try {
+    const logs = await sbFetch('health_logs?select=date,weight_kg&order=date.asc&weight_kg=not.is.null');
+    const canvas = document.getElementById('weight-chart');
+    const ctx = canvas.getContext('2d');
+    if (weightChart) { weightChart.destroy(); weightChart = null; }
+
+    const labels = logs.map(l => l.date?.slice(5) || '');
+    const data = logs.map(l => parseFloat(l.weight_kg));
+
+    // Simple canvas chart
+    if (!data.length) {
+      ctx.fillStyle = '#475569';
+      ctx.font = '14px Inter';
+      ctx.textAlign = 'center';
+      ctx.fillText('No weight data yet. Log your first entry!', canvas.width/2, canvas.height/2);
+      return;
+    }
+
+    const w = canvas.width, h = canvas.height, pad = 30;
+    const max = Math.max(...data) * 1.05, min = Math.min(...data) * 0.95;
+    const range = max - min || 1;
+    const stepX = (w - pad * 2) / (data.length - 1 || 1);
+
+    // Grid lines
+    ctx.strokeStyle = 'rgba(30,41,59,0.5)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 4; i++) {
+      const y = pad + (h - pad * 2) * i / 3;
+      ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(w - pad, y); ctx.stroke();
+      ctx.fillStyle = '#475569'; ctx.font = '10px Inter'; ctx.textAlign = 'right';
+      ctx.fillText((max - range * i / 3).toFixed(1), pad - 5, y + 3);
+    }
+
+    // Fill
+    ctx.beginPath(); ctx.moveTo(pad, h - pad);
+    data.forEach((d, i) => ctx.lineTo(pad + i * stepX, pad + (h - pad * 2) * (1 - (d - min) / range)));
+    ctx.lineTo(pad + (data.length - 1) * stepX, h - pad);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(0,212,170,0.1)';
+    ctx.fill();
+
+    // Line
+    ctx.beginPath();
+    data.forEach((d, i) => {
+      const x = pad + i * stepX, y = pad + (h - pad * 2) * (1 - (d - min) / range);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = '#00d4aa';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Dots
+    data.forEach((d, i) => {
+      const x = pad + i * stepX, y = pad + (h - pad * 2) * (1 - (d - min) / range);
+      ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fillStyle = '#00d4aa'; ctx.fill();
+      ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI * 2); ctx.fillStyle = '#08080e'; ctx.fill();
+    });
+
+    // Labels
+    data.forEach((d, i) => {
+      if (data.length > 7 && i % Math.ceil(data.length / 7) !== 0) return;
+      ctx.fillStyle = '#475569'; ctx.font = '9px Inter'; ctx.textAlign = 'center';
+      ctx.fillText(labels[i], pad + i * stepX, h - 8);
+    });
+
+  } catch(e) { console.error(e) }
+}
+
+// ===== HABITS =====
+const allHabits = ['Wake up at 6 AM', 'Reading 30 min', 'Journaling', 'Social Media < 30 min', 'NeuroSetu 1hr evening', '3 Sales Calls'];
+
+async function loadHabitsToday() {
+  try {
+    const habits = await sbFetch(`habits?select=*&date=eq.${today()}`);
+    document.getElementById('ov-habits-count').textContent = habits.filter(h=>h.completed).length + '/' + habits.length;
+    const div = document.getElementById('habits-today');
+    if (habits.length === 0) {
+      div.innerHTML = '<div style="padding:14px;text-align:center;color:var(--text2)">No habits logged. <button class="btn btn-sm btn-primary mt-8" onclick="initHabits()">Initialize 6 Habits</button></div>';
+      return;
+    }
+
+    // Calculate streak
+    let streak = 0;
+    let d = new Date();
+    while (true) {
+      const ds = d.toISOString().split('T')[0];
+      const dayHabits = habits.filter(h => h.date === ds);
+      if (dayHabits.length > 0 && dayHabits.every(h => h.completed)) streak++;
+      else if (dayHabits.length > 0) break;
+      else break;
+      d.setDate(d.getDate() - 1);
+    }
+    document.getElementById('habits-streak-count').textContent = '🔥 ' + streak + ' day streak';
+
+    div.innerHTML = habits.map(h => `
+      <div class="event-item">
+        <div class="event-check ${h.completed ? 'done' : ''}" onclick="toggleHabit(${h.id}, ${!h.completed})">
+          ${h.completed ? '<i class="fa-solid fa-check"></i>' : ''}</div>
+        <div class="event-info"><div class="ev-title" style="${h.completed ? 'text-decoration:line-through;opacity:0.5':''}">${h.habit_name}</div></div>
+      </div>
+    `).join('');
+  } catch(e) { console.error(e) }
+}
+
+async function initHabits() {
+  try {
+    for (const h of allHabits) {
+      await sbPost('habits', { date: today(), habit_name: h, completed: false });
+    }
+    loadHabitsToday();
+    loadHabitsWeek();
+    loadOverview();
+  } catch(e) { alert('Error: ' + e.message) }
+}
+
+async function toggleHabit(id, completed) {
+  try {
+    await sbPatch(`habits?id=eq.${id}`, { completed });
+    loadHabitsToday();
+    loadHabitsWeek();
+    loadOverview();
+  } catch(e) { console.error(e) }
+}
+
+async function loadHabitsWeek() {
+  try {
+    // Get past 7 days
+    const results = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const ds = d.toISOString().split('T')[0];
+      const habits = await sbFetch(`habits?select=habit_name,completed&date=eq.${ds}`);
+      const done = habits.filter(h => h.completed).length;
+      const total = habits.length;
+      results.push({ date: ds, done, total, day: d.toLocaleDateString('en', { weekday: 'short' }) });
+    }
+
+    const div = document.getElementById('habits-week');
+    div.innerHTML = `<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+      ${results.map(r => `
+        <div style="text-align:center;padding:8px 10px;background:rgba(30,41,59,0.3);border-radius:10px;min-width:50px">
+          <div style="font-size:0.6rem;color:var(--text2);margin-bottom:4px">${r.day}</div>
+          <div style="font-size:1rem;font-weight:700;color:${r.done === r.total && r.total > 0 ? 'var(--accent)' : r.done > 0 ? 'var(--orange)' : 'var(--text3)'}">
+            ${r.total > 0 ? r.done + '/' + r.total : '—'}
+          </div>
+          <div style="margin-top:4px"><div style="width:30px;height:4px;background:rgba(30,41,59,0.5);border-radius:2px;overflow:hidden">
+            <div style="height:100%;width:${r.total > 0 ? (r.done/r.total)*100 : 0}%;background:var(--accent);border-radius:2px;transition:width 0.3s"></div>
+          </div></div>
+        </div>
+      `).join('')}
+    </div>`;
+  } catch(e) { console.error(e) }
+}
+
+// ===== EXPENSES =====
+async function loadExpenses() {
+  try {
+    const [expenses, meta] = await Promise.all([
+      sbFetch('expenses?select=*&order=expense_date.desc&limit=20'),
+      sbFetch('dashboard_meta?select=key,value')
+    ]);
+    document.getElementById('expense-count').textContent = expenses.length;
+    const totalExp = expenses.reduce((s, e) => s + parseFloat(e.amount || 0), 0);
+
+    let revenue = 0;
+    meta.forEach(m => {
+      if (m.key === 'revenue_month') {
+        revenue = parseFloat(m.value) || 0;
+        document.getElementById('fin-revenue').textContent = '₹' + revenue.toLocaleString();
+      }
+    });
+    document.getElementById('fin-expenses').textContent = '₹' + totalExp.toLocaleString();
+    document.getElementById('fin-profit').textContent = '₹' + (revenue - totalExp).toLocaleString();
+    document.getElementById('fin-profit').style.color = (revenue - totalExp) >= 0 ? 'var(--accent)' : 'var(--red)';
+
+    const div = document.getElementById('expense-list');
+    if (!expenses.length) {
+      div.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2)">No expenses logged</div>';
+      return;
+    }
+    div.innerHTML = `<table class="data-table">
+      <tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th></tr>
+      ${expenses.map(e => `<tr>
+        <td style="color:var(--text2)">${e.expense_date}</td>
+        <td><span class="tag tag-orange">${e.category}</span></td>
+        <td style="color:var(--text2)">${e.description || '—'}</td>
+        <td style="font-weight:600;color:var(--red)">-₹${parseFloat(e.amount).toLocaleString()}</td>
+      </tr>`).join('')}
+    </table>`;
+  } catch(e) { console.error(e) }
+}
+
+async function saveExpense() {
+  const data = {
+    amount: parseFloat(document.getElementById('expense-amount').value),
+    category: document.getElementById('expense-cat').value,
+    description: document.getElementById('expense-desc').value,
+    expense_date: document.getElementById('expense-date').value
+  };
+  if (!data.amount) return alert('Amount is required');
+  try {
+    await sbPost('expenses', data);
+    closeModal('expense-modal');
+    document.getElementById('expense-amount').value = '';
+    document.getElementById('expense-desc').value = '';
+    loadExpenses();
+  } catch(e) { alert('Error: ' + e.message) }
+}
+
+async function saveRevenue() {
+  const amount = parseFloat(document.getElementById('revenue-amount').value);
+  const clients = parseInt(document.getElementById('revenue-clients').value);
+  try {
+    if (amount !== null) await sbPatch('dashboard_meta?key=eq.revenue_month', { value: amount || 0 });
+    if (clients !== null) await sbPatch('dashboard_meta?key=eq.paying_clients', { value: clients || 0 });
+    closeModal('revenue-modal');
+    loadExpenses();
+    loadOverview();
+  } catch(e) { alert('Error: ' + e.message) }
+}
+
+// ===== CLIENTS =====
+async function loadClients() {
+  try {
+    const clients = await sbFetch('clients?select=*&order=created_at.desc');
+    document.getElementById('client-count').textContent = clients.length;
+    const div = document.getElementById('clients-table');
+    if (!clients.length) {
+      div.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2)">No clients yet</div>';
+      return;
+    }
+    div.innerHTML = `<table class="data-table">
+      <tr><th>Name</th><th>Business</th><th>Service</th><th>Status</th><th>Phone</th></tr>
+      ${clients.map(c => `<tr>
+        <td style="font-weight:500">${c.name}</td>
+        <td style="color:var(--text2)">${c.business_name || '—'}</td>
+        <td style="color:var(--text2)">${c.service_type || '—'}</td>
+        <td><span class="tag ${c.status === 'active' ? 'tag-green' : c.status === 'inactive' ? 'tag-orange' : 'tag-gray'}">${c.status}</span></td>
+        <td style="color:var(--text2)">${c.phone || '—'}</td>
+      </tr>`).join('')}
+    </table>`;
+  } catch(e) { console.error(e) }
+}
+
+async function saveClient() {
+  const data = {
+    name: document.getElementById('client-name').value,
+    business_name: document.getElementById('client-business').value,
+    phone: document.getElementById('client-phone').value,
+    email: document.getElementById('client-email').value,
+    service_type: document.getElementById('client-service').value,
+    status: document.getElementById('client-status').value,
+    notes: document.getElementById('client-notes').value
+  };
+  if (!data.name) return alert('Name is required');
+  try {
+    await sbPost('clients', data);
+    closeModal('client-modal');
+    document.querySelectorAll('#client-modal input, #client-modal textarea').forEach(i => i.value = '');
+    loadClients();
+  } catch(e) { alert('Error: ' + e.message) }
+}
+
+// ===== GITHUB =====
+async function loadGitHubPage() {
   try {
     const [userResp, reposResp] = await Promise.all([
       fetch('/api/github/users/mahatosnehabala250-project'),
       fetch('/api/github/users/mahatosnehabala250-project/repos?per_page=30&sort=updated&type=public')
     ]);
-
     if (!userResp.ok || !reposResp.ok) throw new Error('API error');
-
     const user = await userResp.json();
     const repos = await reposResp.json();
 
-    // Update stat-king values
-    document.getElementById('gh-repos').textContent = user.public_repos || '--';
-
-    // Count unique languages
+    document.getElementById('gh-repos-page').textContent = user.public_repos || '--';
     const langs = new Set(repos.map(r => r.language).filter(Boolean));
-    document.getElementById('gh-lang-count').textContent = langs.size;
+    document.getElementById('gh-langs-page').textContent = langs.size;
+    document.getElementById('gh-followers').textContent = user.followers || 0;
+    document.getElementById('gh-activity').textContent = user.updated_at ? new Date(user.updated_at).toLocaleDateString('en-IN') : '--';
+    document.getElementById('gh-badge-page').textContent = '● LIVE — ' + repos.length + ' repos';
 
-    // Build profile mini
-    let avatarLetter = (user.login || '🧠')[0].toUpperCase();
-    let repoHTML = `
-      <div class="github-profile-mini">
-        <div class="github-avatar">${avatarLetter}</div>
-        <div class="github-info">
-          <div class="gh-name">${user.login}</div>
-          <div class="gh-stats">
-            <span><i class="fa-regular fa-circle"></i> ${user.public_repos} repos</span>
-            <span><i class="fa-regular fa-star"></i> ${user.followers} followers</span>
-          </div>
-        </div>
-      </div>
-      <div class="repos-show">
-    `;
-
-    repos.forEach(r => {
-      const lang = r.language || 'Unknown';
-      const langClass = 'lang-' + (lang === 'TypeScript' ? 'ts' : lang === 'Python' ? 'py' : lang === 'HTML' ? 'html' : lang === 'JavaScript' ? 'js' : 'unknown');
-      const updated = new Date(r.updated_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
-      repoHTML += `
-        <div class="repo-row">
-          <div class="repo-name"><a href="${r.html_url}" target="_blank">${r.name}</a></div>
-          <div style="display:flex;align-items:center;gap:6px">
-            <span class="repo-lang ${langClass}">${lang}</span>
-            <span class="repo-stars"><i class="fa-regular fa-star"></i> ${r.stargazers_count}</span>
-          </div>
-        </div>
-      `;
-    });
-
-    repoHTML += '</div>';
-    section.innerHTML = repoHTML;
-    document.getElementById('gh-badge').textContent = '● LIVE — ' + repos.length + ' repos';
-
-  } catch (e) {
-    section.innerHTML = `
-      <div style="text-align:center;padding:20px;color:var(--text2)">
-        <i class="fa-solid fa-cloud" style="font-size:2rem;opacity:0.4;margin-bottom:8px;display:block"></i>
-        GitHub API unavailable — showing static data
-      </div>
-      <div class="repos-show">
-        <div class="repo-row"><div class="repo-name">wb-grievance-portal</div><span class="repo-lang lang-ts">TypeScript</span></div>
-        <div class="repo-row"><div class="repo-name">school-management-erp</div><span class="repo-lang lang-ts">TypeScript</span></div>
-        <div class="repo-row"><div class="repo-name">NEEUROSETU-AI</div><span class="repo-lang lang-html">HTML</span></div>
-        <div class="repo-row"><div class="repo-name">divine-care-physiotherapy</div><span class="repo-lang lang-py">Python</span></div>
-        <div class="repo-row"><div class="repo-name">Aptek</div><span class="repo-lang lang-py">Python</span></div>
-        <div class="repo-row"><div class="repo-name">DREAM-LOOK</div><span class="repo-lang lang-ts">TypeScript</span></div>
-      </div>
-    `;
-    document.getElementById('gh-badge').className = 'badge badge-offline';
-    document.getElementById('gh-badge').textContent = '● CACHED';
+    const div = document.getElementById('github-repos');
+    div.innerHTML = `<table class="data-table">
+      <tr><th>Repository</th><th>Language</th><th>Stars</th><th>Updated</th></tr>
+      ${repos.map(r => `<tr>
+        <td><a href="${r.html_url}" target="_blank" style="color:var(--text);text-decoration:none;font-weight:500">${r.name}</a></td>
+        <td><span class="tag tag-blue">${r.language || '—'}</span></td>
+        <td>${'⭐'.repeat(Math.min(r.stargazers_count, 3)) || '0'}</td>
+        <td style="color:var(--text2);font-size:0.7rem">${new Date(r.updated_at).toLocaleDateString('en-IN')}</td>
+      </tr>`).join('')}
+    </table>`;
+  } catch(e) {
+    document.getElementById('github-repos').innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2)">Failed to load GitHub data</div>';
+    document.getElementById('gh-badge-page').textContent = '● Offline';
   }
 }
 
-loadGitHub();
+// ===== REFRESH =====
+async function refreshAll() {
+  loadOverview();
+  loadCalendarEvents();
+  loadLeads();
+  loadCallLog();
+  loadHealthLogs();
+  loadHabitsToday();
+  loadHabitsWeek();
+  loadExpenses();
+  loadClients();
+  loadGitHubPage();
+  if (typeof renderWeightChart === 'function') renderWeightChart();
+}
 
-// ===== SUPABASE LIVE DATA =====
-async function loadSupabaseData() {
+// ===== INIT =====
+async function init() {
+  await initSupabase();
+  // Load initial page based on hash
+  const page = location.hash.replace('#','') || 'overview';
+  
+  // Load data for visible page + overview cache
+  loadOverview();
+  
+  // Preload some data
   try {
-    const configResp = await fetch('/api/supabase-config');
-    const config = await configResp.json();
-
-    // Fetch all tables in parallel
-    const [metaResp, callsResp, healthResp, habitsResp, leadsResp] = await Promise.all([
-      fetch(config.url + '/rest/v1/dashboard_meta?select=key,value', {
-        headers: { 'apikey': config.anon_key }
-      }),
-      fetch(config.url + '/rest/v1/sales_calls?select=count,date&order=date.desc&limit=7', {
-        headers: { 'apikey': config.anon_key }
-      }),
-      fetch(config.url + '/rest/v1/health_logs?select=*&order=date.desc&limit=1', {
-        headers: { 'apikey': config.anon_key }
-      }),
-      fetch(config.url + '/rest/v1/habits?select=habit_name,completed,date&order=date.desc', {
-        headers: { 'apikey': config.anon_key }
-      }),
-      fetch(config.url + '/rest/v1/leads?select=id,name,status,notes&order=created_at.desc&limit=10', {
-        headers: { 'apikey': config.anon_key }
-      })
+    const [calls, habits] = await Promise.all([
+      sbFetch(`sales_calls?select=count,date&order=date.desc&limit=1`),
+      sbFetch(`habits?select=habit_name,completed,date&date=eq.${today()}`)
     ]);
-
-    if (!metaResp.ok) throw new Error('Supabase data not available');
-
-    const meta = await metaResp.json();
-    const calls = await callsResp.json();
-    const health = await healthResp.json();
-    const habits = await habitsResp.json();
-    const leads = await leadsResp.json();
-
-    // Update dashboard_meta values
-    meta.forEach(item => {
-      if (item.key === 'revenue_month') {
-        document.getElementById('stat-revenue').textContent = '₹' + (item.value || '0');
-      }
-      if (item.key === 'paying_clients') {
-        document.getElementById('stat-clients').textContent = item.value || '0';
-      }
-    });
-
-    // Update sales calls
-    if (calls.length > 0) {
-      const todayCall = calls.find(c => c.date === new Date().toISOString().split('T')[0]);
-      if (todayCall) {
-        document.getElementById('stat-calls').textContent = todayCall.count || 0;
-      }
+    if (calls.length) document.getElementById('ov-calls').textContent = calls[0].count || 0;
+    if (habits.length) {
+      document.getElementById('ov-habits-count').textContent = habits.filter(h => h.completed).length + '/' + habits.length;
+      document.getElementById('habits-streak-count').textContent = '🔥 ' + habits.filter(h=>h.completed).length + '/6 today';
     }
+  } catch(e) {}
 
-    // Update health data if available
-    if (health.length > 0) {
-      const latest = health[0];
-      // Health tracker updates if weight data exists
-    }
-
-    // Update habits count
-    if (habits.length > 0) {
-      const todayHabits = habits.filter(h => 
-        h.date === new Date().toISOString().split('T')[0]
-      );
-      const done = todayHabits.filter(h => h.completed).length;
-      document.getElementById('habits-count').textContent = done + '/' + todayHabits.length + ' Today';
-    }
-
-  } catch (e) {
-    console.log('Supabase live data unavailable:', e.message);
-  }
+  navigate(page);
 }
 
-// Load data on page load
-loadSupabaseData();
+// Reset event modal on open
+document.querySelector('#event-modal .btn-secondary')?.addEventListener('click', () => {
+  document.getElementById('event-id').value = '';
+  document.getElementById('event-modal-title').textContent = 'Add Event';
+});
+
+init();
 </script>
 </body>
 </html>
