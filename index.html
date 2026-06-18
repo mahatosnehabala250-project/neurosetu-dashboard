@@ -767,7 +767,7 @@
     </div>
     <div class="stat-orb pink">
       <div class="stat-icon"><i class="fa-solid fa-calendar-check"></i></div>
-      <div class="stat-val">0</div>
+      <div class="stat-val" id="stat-calls">0</div>
       <div class="stat-lbl">Sales Calls Today</div>
     </div>
   </div>
@@ -920,7 +920,7 @@
     <div class="card">
       <div class="card-header">
         <h2><i class="fa-regular fa-circle-check"></i> Daily Habits</h2>
-        <span class="badge badge-live">0/6 Today</span>
+        <span class="badge badge-live" id="habits-count">0/6 Today</span>
       </div>
       <div class="habit-row">
         <div class="habit-check pending"><i class="fa-solid fa-check"></i></div>
@@ -1187,6 +1187,80 @@ async function loadGitHub() {
 }
 
 loadGitHub();
+
+// ===== SUPABASE LIVE DATA =====
+async function loadSupabaseData() {
+  try {
+    const configResp = await fetch('/api/supabase-config');
+    const config = await configResp.json();
+
+    // Fetch all tables in parallel
+    const [metaResp, callsResp, healthResp, habitsResp, leadsResp] = await Promise.all([
+      fetch(config.url + '/rest/v1/dashboard_meta?select=key,value', {
+        headers: { 'apikey': config.anon_key }
+      }),
+      fetch(config.url + '/rest/v1/sales_calls?select=count,date&order=date.desc&limit=7', {
+        headers: { 'apikey': config.anon_key }
+      }),
+      fetch(config.url + '/rest/v1/health_logs?select=*&order=date.desc&limit=1', {
+        headers: { 'apikey': config.anon_key }
+      }),
+      fetch(config.url + '/rest/v1/habits?select=habit_name,completed,date&order=date.desc', {
+        headers: { 'apikey': config.anon_key }
+      }),
+      fetch(config.url + '/rest/v1/leads?select=id,name,status,notes&order=created_at.desc&limit=10', {
+        headers: { 'apikey': config.anon_key }
+      })
+    ]);
+
+    if (!metaResp.ok) throw new Error('Supabase data not available');
+
+    const meta = await metaResp.json();
+    const calls = await callsResp.json();
+    const health = await healthResp.json();
+    const habits = await habitsResp.json();
+    const leads = await leadsResp.json();
+
+    // Update dashboard_meta values
+    meta.forEach(item => {
+      if (item.key === 'revenue_month') {
+        document.getElementById('stat-revenue').textContent = '₹' + (item.value || '0');
+      }
+      if (item.key === 'paying_clients') {
+        document.getElementById('stat-clients').textContent = item.value || '0';
+      }
+    });
+
+    // Update sales calls
+    if (calls.length > 0) {
+      const todayCall = calls.find(c => c.date === new Date().toISOString().split('T')[0]);
+      if (todayCall) {
+        document.getElementById('stat-calls').textContent = todayCall.count || 0;
+      }
+    }
+
+    // Update health data if available
+    if (health.length > 0) {
+      const latest = health[0];
+      // Health tracker updates if weight data exists
+    }
+
+    // Update habits count
+    if (habits.length > 0) {
+      const todayHabits = habits.filter(h => 
+        h.date === new Date().toISOString().split('T')[0]
+      );
+      const done = todayHabits.filter(h => h.completed).length;
+      document.getElementById('habits-count').textContent = done + '/' + todayHabits.length + ' Today';
+    }
+
+  } catch (e) {
+    console.log('Supabase live data unavailable:', e.message);
+  }
+}
+
+// Load data on page load
+loadSupabaseData();
 </script>
 </body>
 </html>
