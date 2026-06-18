@@ -1,30 +1,30 @@
-# Email Outreach Templates — USA Website Development Clients 🇺🇸
-## NeuroSetu AI — Ready to Send
+# EMAIL TEMPLATES — USA Website Development ✅ CORRECTED PRICING
+## $500 + FREE AI Chatbot Bonus
 
 ---
 
-## 📧 Template 1: Accountants (Professional Services)
+## 📧 TEMPLATE 1: Accountants / Professional Services
 
-**Subject:** Website for [Business Name] — No upfront cost
+**Subject:** Website + Free AI Chatbot for [Business Name]
 
 Hi [Name],
 
-I noticed [Business Name] has excellent reviews on Google (⭐[Rating] with [Reviews] reviews) — clearly you're doing great work.
+I came across [Business Name] on Google — ⭐[Rating] with [Reviews] reviews is impressive! Clearly you're doing great work.
 
-I also noticed you don't have a website yet. In 2026, most clients search online before choosing a tax/accounting service. A professional website could help you:
-- Capture more local clients searching on Google
-- Build trust with potential customers before they call
-- Let clients book appointments online 24/7
+I noticed you don't have a website yet. In 2026, most clients search online before choosing a service provider. A professional website can help you:
 
-I build professional websites starting at just **$100 (₹8,000)** — no hidden fees, no monthly surprises. Here's what's included:
-- Modern, mobile-friendly design
-- Google Maps + contact form
-- Business info & services page
-- 1 month free hosting
+📱 Get found by more local clients searching on Google  
+⭐ Build trust instantly with potential customers  
+📋 Let clients find your services & book online 24/7
 
-I work remotely from India but all my clients are US-based. Happy to show you samples of similar sites I've built.
+I build professional websites for **$500** — and as a **FREE bonus**, I'll include an **AI Chatbot** for your site that can:
+- Answer client questions 24/7 (hours, services, pricing)
+- Capture leads automatically
+- Schedule appointments
 
-Let me know if you're open to a quick 10-min call to discuss?
+That's a complete website + AI chatbot for just **$500**. US agencies charge $3,000–$5,000 for the same.
+
+Let me know if you're interested!
 
 Best,
 Mrinmoy
@@ -33,87 +33,53 @@ WhatsApp: +91 8918213286
 
 ---
 
-## 📧 Template 2: Restaurants/Food Business
+## 📧 TEMPLATE 2: Restaurants
 
-**Subject:** [Business Name] deserves a website!
+**Subject:** Website + AI Chatbot for [Business Name]
 
 Hi there,
 
-I came across [Business Name] on Google — [Reviews] reviews and ⭐[Rating] rating is impressive!
+[Business Name] has [Reviews] reviews with ⭐[Rating] rating — but no website? Let me help!
 
-But I was surprised to see you don't have a website yet. In 2026, a website can help restaurants like yours:
-- Show your menu online (people search before visiting!)
-- Accept orders/delivery requests
-- Get found on Google search
-- Build your brand professionally
+I build restaurant websites for **$500** that include:
+- Menu page (people search before visiting!)
+- Google Maps + location
+- Contact/order form
+- **FREE AI Chatbot** — answers customer questions 24/7 about hours, menu, reservations
 
-I build custom restaurant websites starting at **$100**. Includes menu page, location map, contact form, and mobile-optimized design.
+US agencies charge 10x more. Let me know if interested!
 
-A few of my recent projects for US businesses have helped them get more visibility and customers.
-
-Would you be interested in seeing a sample?
-
-Thanks,
+Best,
 Mrinmoy
 NeuroSetu AI
 
 ---
 
-## 📧 Template 3: General Business (Short & Direct)
+## 📧 TEMPLATE 3: Short & Direct
 
 **Subject:** Quick question about [Business Name]
 
 Hi,
 
-My name is Mrinmoy — I help US businesses build professional websites at affordable prices (starting $100).
+My name is Mrinmoy. I help US businesses build modern websites + AI chatbots.
 
-I noticed [Business Name] doesn't have a website yet, despite having great reviews on Google.
+I noticed [Business Name] doesn't have a website yet. For just **$500**, I'll build you a complete website AND include a free AI chatbot that handles customer questions 24/7.
 
-Would you be interested in getting a simple, professional website built? Happy to share pricing and examples.
+Interested in seeing samples?
 
 Best,
 Mrinmoy
 NeuroSetu AI
-+91 8918213286 (WhatsApp)
+WhatsApp: +91 8918213286
 
 ---
 
-## ✅ LEADS WITH FOUND EMAILS (Ready to Send)
+## ✅ CORRECTED PRICING
+| Service | Old Price | ✅ New Price |
+|---------|-----------|-------------|
+| Basic Website | ~~$100~~ | **$500** |
+| AI Chatbot Bonus | Not included | **FREE** |
+| Total Value | $100 | **$500 (worth $3,000+)**
 
-| # | Business | Email | City | 
-|---|----------|-------|------|
-| 1 | **Premier Tax & Financial Services** | Rashawn@premiergroup.io | Chicago, IL |
-| 2 | **Professional & Rapid Tax Services** | professionalrapidtaxservices@gmail.com | Tampa, FL |
-| 3 | **Ridgeview Accounting & Tax** | info@ridgeview-tax.com | Haines City, FL |
-
-## ⏳ LEADS NEEDING PHONE CONTACT (Call First, Ask for Email)
-
-| # | Business | Phone | City |
-|---|----------|-------|------|
-| 4 | Bi Bi Jan Corporation | (718) 421-1414 | Brooklyn, NY |
-| 5 | Skousen Tax Services | (480) 964-8067 | Mesa, AZ |
-| 6 | Multiservices accounting Batista Corp | Tampa, FL |
-| 7 | Rockwell Accounting, LLC | Pensacola, FL |
-
----
-
-## 📋 HOW TO SEND
-
-**Option A — Gmail/Personal Email (Recommended)**
-1. Copy the template above
-2. Replace [Name], [Business Name], [Rating], [Reviews] with real data
-3. Send from your email
-
-**Option B — Hermes Can Send (If you give me SMTP/Gmail access)**
-- I can send directly from here if you share your Gmail + app password
-
-**Option C — WhatsApp DM**
-- I already have WhatsApp setup. Say "send email" and I'll send from the NeuroSetu WhatsApp
-
----
-
-## 📊 CURRENT PROGRESS
-✅ 10 USA leads added to CRM pipeline  
-✅ 3 emails found & saved  
-✅ 3 email templates ready  
-⏳ Need your email credentials to send directly  
+## ⚠️ LESSON LEARNED
+Already sent 3 emails with $100 pricing — rookie mistake. Next batch: $500 with AI chatbot bonus.
